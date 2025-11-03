@@ -1,31 +1,39 @@
 /* ******************************************
- * This server.js file is the primary file of the 
- * application. It is used to control the project.
+ * Primary server file for the 340 Starter App
  *******************************************/
+
 /* ***********************
  * Require Statements
  *************************/
 const express = require("express")
-const env = require("dotenv").config()
+const path = require("path")
+require("dotenv").config()
+
 const app = express()
-const static = require("./routes/static")
+const staticRoutes = require("./routes/static")
 
 /* ***********************
- * Routes
+ * Middleware
  *************************/
-app.use(static)
+// Serve static files and routes
+app.use(staticRoutes)
 
 /* ***********************
- * Local Server Information
- * Values from .env (environment) file
+ * Root Route
  *************************/
-
-const port = process.env.PORT 
-const host = process.env.HOST 
+app.get("/", (req, res) => {
+  res.send("Welcome to the 340 Starter App!")
+})
 
 /* ***********************
- * Log statement to confirm server operation
+ * Server Configuration
+ *************************/
+const port = process.env.PORT || 5502
+const host = process.env.HOST || "localhost"
+
+/* ***********************
+ * Start Server
  *************************/
 app.listen(port, () => {
-  console.log(`app listening on ${host}:${port}`)
+  console.log(`App listening on http://${host}:${port}`)
 })
