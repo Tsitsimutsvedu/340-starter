@@ -13,6 +13,12 @@ const app = express()
 const staticRoutes = require("./routes/static")
 
 /* ***********************
+ * View Engine Setup
+ *************************/
+app.set("view engine", "ejs")
+app.set("views", path.join(__dirname, "views"))
+
+/* ***********************
  * Middleware
  *************************/
 // Serve static files and routes
@@ -22,7 +28,7 @@ app.use(staticRoutes)
  * Root Route
  *************************/
 app.get("/", (req, res) => {
-  res.send("Welcome to the 340 Starter App!")
+  res.render("index") // Looks for views/index.ejs
 })
 
 /* ***********************
