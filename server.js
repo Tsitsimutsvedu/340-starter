@@ -33,7 +33,16 @@ app.use(staticRoutes)
 
 // Root route renders index.ejs inside layout.ejs
 app.get("/", (req, res) => {
-  res.render("index")
+  res.render("index", { title: "Home" })
+})
+
+/* ***********************
+ * Error Handling
+ *************************/
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err.message)
+  console.error(err.stack)
+  res.status(500).send("Internal Server Error")
 })
 
 /* ***********************
@@ -48,3 +57,4 @@ const host = process.env.HOST || "localhost"
 app.listen(port, () => {
   console.log(`App listening on http://${host}:${port}`)
 })
+
