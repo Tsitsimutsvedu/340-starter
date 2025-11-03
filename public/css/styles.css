@@ -1,6 +1,676 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 /******* Change Box Model ***************/
 *,
 *:before,
 *:after {
   box-sizing: border-box;
+}
+
+:root {
+  --primary-color: #1E2A38;
+  --secondary-color: #00B4D8;
+  --accent-color: #F1F6F9;
+}
+
+html {
+  background: repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 50% / 100px 100px;
+  padding: 2px;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: #fff;
+  /*border: 3px solid var(--secondary-color);*/
+  border-radius: 5px;
+  align-items: center;
+}
+
+
+
+header,
+footer {
+  margin: 0;
+  padding: 1rem;
+}
+
+main {
+  flex-grow: 1;
+  margin: 0;
+  padding: 1rem;
+}
+
+#wrapper {
+  /* Flexbox properties to control layout */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: #fff;
+  border: 3px solid var(--secondary-color);
+  border-radius: 5px;
+}
+
+
+h3 {
+  color: var(--primary-color);
+  text-align: center;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  max-width: 100%;
+  justify-content: center;
+}
+
+.hero img {
+  display: block;
+  height: auto;
+  align-items: center;
+}
+
+.hero-text {
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: start;
+  text-align: left;
+  width: 300px;
+  height: auto;
+  padding: 4px;
+  background-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+.hero-text p {
+  font-size: large;
+  color: var(--secondary-color);
+  margin: 0.2rem 0;
+  line-height: 1.2;
+}
+
+.hero h2 {
+  color: var(--secondary-color);
+  font-weight: 700;
+}
+
+.btn {
+  background-color: var(--secondary-color);
+  color: var(--primary-color);
+  border-color: var(--secondary-color);
+  padding: 5px;
+  font-size: 1rem;
+  margin: 0 auto;
+  width: 80%;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+
+nav {
+  margin: 10px;
+}
+
+nav ul li a {
+  color: var(--accent-color);
+}
+
+nav ul {
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+  background-color: var(--primary-color);
+  padding: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+
+figure {
+  width: 160px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  justify-content: center;
+  padding: 5px;
+  line-height: 1.5;
+}
+
+.img-wrapper {
+  width: 160px;
+  height: 100px;
+  background-color: var(--secondary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.img-wrapper img {
+  width: 100px;
+  height: 90px;
+}
+
+
+a {
+  text-decoration: none;
+}
+
+#top-header {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+  padding: 1rem;
+}
+
+
+
+.siteName a {
+  font-size: x-large;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+#tools a {
+  font-size: x-large;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.content-upgrades-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.content-Review ul li {
+  padding: 3.5px;
+  line-height: 2;
+  font-size: large;
+  font-weight: 600;
+}
+
+footer {
+  max-width: 100%;
+  background-color: var(--primary-color);
+}
+
+footer p {
+  text-align: center;
+  color: var(--accent-color)
+}
+
+
+
+
+.vehicle-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin: 1rem 0;
+}
+
+.vehicle-detail img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.vehicle-info {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.vehicle-info h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.vehicle-info p {
+  margin: 0.5rem 0;
+}
+
+.notice {
+  color: rgb(165, 0, 0);
+  font-style: italic;
+  font-weight: bold;
+}
+
+
+
+/* Flash message styles */
+/* Flash message container */
+/* Center and clean up flash message */
+/* Login container to center everything */
+.login-container {
+  max-width: 420px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Flash message inside login container */
+.login-container ul.messages {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.login-container ul.messages li.notice {
+  background-color: #fff8e1;
+  border-left: 5px solid #ffa726;
+  color: #5d4037;
+  padding: 1rem;
+  border-radius: 5px;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.registration-stat {
+  text-align: center;
+  font-size: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: green;
+}
+
+.password-rules {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+.password-rules ul {
+  padding-left: 1.2rem;
+  margin-top: 0.3rem;
+}
+
+input:required:valid {
+  border: 2px solid #28a745;
+  /* Green border on success */
+}
+
+input:required:invalid {
+  border: 2px solid #dc3545;
+  /* Red border if pattern doesn't match */
+}
+
+
+/* Login form container */
+form {
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Form labels and inputs */
+form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+form input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+
+
+.form-errors {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+
+/* Submit button */
+form button {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #0288d1;
+  color: black;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+form button:hover {
+  background-color: #0277bd;
+}
+
+/* Registration link styling */
+form+p {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+form+p a {
+  color: #0288d1;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+form+p a:hover {
+  text-decoration: underline;
+}
+
+
+
+
+/*  Register box */
+.flash-container {
+  display: flex;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+/* Clean message styling */
+ul.messages {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul.messages li.notice {
+  background-color: #fff8e1;
+  border-left: 5px solid #ffa726;
+  color: #5d4037;
+  padding: 1rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  text-align: center;
+}
+
+
+
+
+
+
+
+@media screen and (min-width: 768px) {
+  .vehicle-detail {
+    flex-direction: row;
+  }
+
+  .vehicle-detail img {
+    width: 50%;
+  }
+
+  .vehicle-info {
+    width: 50%;
+  }
+}
+
+
+#inv-display {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  list-style: none;
+}
+
+#inv-display li {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  background-color: #fff;
+  transition: box-shadow 0.3s ease;
+}
+
+#inv-display li:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.namePrice {
+  margin-top: 1rem;
+}
+
+.namePrice h2 {
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+}
+
+.namePrice span {
+  font-weight: bold;
+  color: #007f5f;
+}
+
+
+
+.card {
+  max-width: 480px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #fcfcfc;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  font-family: sans-serif;
+}
+
+.card h2 {
+  margin-top: 0;
+  font-size: 1.4rem;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 0.5rem;
+}
+
+.card ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.card li {
+  margin: 0.5rem 0;
+}
+
+.card a {
+  text-decoration: none;
+  color: #0066cc;
+}
+
+.card a:hover {
+  text-decoration: underline;
+}
+
+.loginlink a{
+  color: green;
+}
+
+
+
+
+@media screen and (min-width: 800px) {
+  .content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  html {
+    background: none;
+  }
+
+  body {
+    margin: 0;
+    border: none;
+    border-radius: 0;
+  }
+
+  #wrapper {
+    border: 0;
+    margin: 0;
+  }
+
+  figure {
+    width: 100px;
+    height: 120px;
+    margin-left: -5px;
+  }
+
+  .img-wrapper {
+    width: 160px;
+    height: 100px;
+    background-color: var(--secondary-color);
+    border: 1px solid var(--primary-color);
+  }
+
+  .hero-text {
+    position: absolute;
+    top: 40%;
+    left: 30%;
+    width: 200px;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .content-Review {
+    order: -1;
+  }
+
+  .content-upgrades-item {
+    order: 0;
+  }
+
+}
+
+ul.messages {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+ul.messages li.notice {
+  background-color: #f0f8ff;
+}
+
+ul.messages li.error {
+  background-color: #ffe0e0;
+}
+
+/* ... and more styles as needed */
+.error-link a {
+  color: yellow;
+}
+
+
+/* Account List Table Styling */
+
+.account-list-container {
+  margin: 20px auto;
+  padding: 15px;
+  max-width: 900px;
+  /* Adjust as needed */
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.account-table {
+  width: 100%;
+  border-collapse: collapse;
+  /* Removes space between table cells */
+  margin-top: 20px;
+}
+
+.account-table th,
+.account-table td {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.account-table th {
+  background-color: #004d40;
+  /* Dark teal for header */
+  color: #ffffff;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.account-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+  /* Light grey for even rows */
+}
+
+.account-table tbody tr:hover {
+  background-color: #f1f1f1;
+  /* Slightly darker on hover */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+  .account-table thead {
+    display: none;
+    /* Hide header on small screens */
+  }
+
+  .account-table,
+  .account-table tbody,
+  .account-table tr,
+  .account-table td {
+    display: block;
+    /* Make table elements behave like blocks */
+    width: 100%;
+  }
+
+  .account-table tr {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .account-table td {
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+
+  .account-table td::before {
+    content: attr(data-label);
+    /* Use data-label for column names */
+    position: absolute;
+    left: 15px;
+    width: calc(50% - 30px);
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+  }
 }
