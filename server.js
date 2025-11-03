@@ -7,6 +7,7 @@
  *************************/
 const express = require("express")
 const path = require("path")
+const expressLayouts = require("express-ejs-layouts")
 require("dotenv").config()
 
 const app = express()
@@ -16,11 +17,12 @@ const app = express()
  *************************/
 app.set("view engine", "ejs")
 app.set("views", path.join(__dirname, "views"))
+app.use(expressLayouts)
+app.set("layout", "layouts/layout") // Looks for views/layouts/layout.ejs
 
 /* ***********************
  * Static Assets
  *************************/
-// Serve static files from the "public" folder
 app.use(express.static(path.join(__dirname, "public")))
 
 /* ***********************
@@ -29,7 +31,7 @@ app.use(express.static(path.join(__dirname, "public")))
 const staticRoutes = require("./routes/static")
 app.use(staticRoutes)
 
-// Root route renders index.ejs
+// Root route renders index.ejs inside layout.ejs
 app.get("/", (req, res) => {
   res.render("index")
 })
