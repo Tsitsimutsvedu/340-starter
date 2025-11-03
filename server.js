@@ -10,7 +10,6 @@ const path = require("path")
 require("dotenv").config()
 
 const app = express()
-const staticRoutes = require("./routes/static")
 
 /* ***********************
  * View Engine Setup
@@ -19,16 +18,20 @@ app.set("view engine", "ejs")
 app.set("views", path.join(__dirname, "views"))
 
 /* ***********************
- * Middleware
+ * Static Assets
  *************************/
-// Serve static files and routes
-app.use(staticRoutes)
+// Serve static files from the "public" folder
+app.use(express.static(path.join(__dirname, "public")))
 
 /* ***********************
- * Root Route
+ * Routes
  *************************/
+const staticRoutes = require("./routes/static")
+app.use(staticRoutes)
+
+// Root route renders index.ejs
 app.get("/", (req, res) => {
-  res.render("index") // Looks for views/index.ejs
+  res.render("index")
 })
 
 /* ***********************
