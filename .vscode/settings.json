@@ -1,0 +1,20 @@
+{
+  "sqltools.connections": [
+    {
+      "pgOptions": {
+        "ssl": {
+          "rejectUnauthorized": true
+        }
+      },
+      "previewLimit": 50,
+      "server": "localhost",
+      "driver": "PostgreSQL",
+      "name": "Cse340",
+      "connectString": "postgresql://cse340_db:RB9g7ee2ym9kFZTsG2pTDTkdmlsRBdrx@dpg-d2911v0gjchc73c83c3g-a.oregon-postgres.render.com/cse340_db_mir2"
+    }
+  ],
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.detectIndentation": false,
+  "editor.formatOnType": true
+}
