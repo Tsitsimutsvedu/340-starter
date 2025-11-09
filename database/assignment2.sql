@@ -1,40 +1,36 @@
--- Insert structure for the table `account` 
-INSERT INTO public.account (
-    account_firstname,
-    account_lastname,
-    account_email,
-    account_password
-  )
+-- SQL statements for Assignment 2
+-- Task 1.1: Insert new account for Tony Stark
+INSERT INTO account (first_name, last_name, email, password)
 VALUES (
-    'Tony',
-    'Stark',
-    'tony@starkent.com',
-    'Iam1ronM@n'
-  );
--- Alter structure for the column of `account_type` of the table `account`
-UPDATE public.account
+        'Tony',
+        'Stark',
+        'tony@starkent.com',
+        'Iam1ronM@n'
+    );
+-- Task 1.2: Update Tony Stark's account_type to 'Admin'
+UPDATE account
 SET account_type = 'Admin'
-WHERE account_id = 1;
--- Delete structure for the record in table `account`
-DELETE FROM public.account
-WHERE account_id = 1;
--- Modify the `GM Hummer` record from the table `inventory`
-UPDATE public.inventory
+WHERE email = 'tony@starkent.com';
+-- Task 1.3: Delete Tony Stark's account
+DELETE FROM account
+WHERE email = 'tony@starkent.com';
+-- Task 1.4: Update description of GM Hummer from 'small interiors' to 'a huge interior'
+UPDATE inventory
 SET inv_description = REPLACE(
-    inv_description,
-    'small interiors',
-    'a huge interior'
-  )
-WHERE inv_description LIKE '%small interiors%';
--- Inner Join structure to select records from `inventory` and `classification` tables
-SELECT inv_make,
-  inv_model,
-  classification_name
-FROM inventory
-  INNER JOIN classification ON inventory.classification_id = classification.classification_id
-WHERE classification.classification_name = 'Sport';
--- Modify the table `inventory` and add /vehicles to the middle of 
--- the file path in the inv_image and inv_thumbnail columns
-UPDATE public.inventory
+        inv_description,
+        'small interiors',
+        'a huge interior'
+    )
+WHERE make = 'GM'
+    AND model = 'Hummer';
+-- Task 1.5: Select make, model, and classification_name for 'Sport' category using INNER JOIN
+SELECT i.make,
+    i.model,
+    c.classification_name
+FROM inventory AS i
+    INNER JOIN classification AS c ON i.classification_id = c.classification_id
+WHERE c.classification_name = 'Sport';
+-- Task 1.6: Update all image and thumbnail paths to include '/vehicles'
+UPDATE inventory
 SET inv_image = REPLACE(inv_image, '/images/', '/images/vehicles/'),
-  inv_thumbnail = REPLACE(inv_thumbnail, '/images/', '/images/vehicles/');
+    inv_thumbnail = REPLACE(inv_thumbnail, '/images/', '/images/vehicles/');
