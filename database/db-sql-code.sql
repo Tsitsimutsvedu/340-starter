@@ -8,7 +8,7 @@ END IF;
 END $$;
 -- Create ENUM type for account_type
 CREATE TYPE public.account_type AS ENUM ('Client', 'Employee', 'Admin');
-ALTER TYPE public.account_type OWNER TO cse340_db;
+ALTER TYPE public.account_type OWNER TO cse340_starter;
 -- Create classification table
 CREATE TABLE public.classification (
     classification_id SERIAL PRIMARY KEY,
