@@ -2,8 +2,8 @@
 DO $$ BEGIN IF NOT EXISTS (
     SELECT
     FROM pg_roles
-    WHERE rolname = 'cse340_db'
-) THEN CREATE ROLE cse340_db WITH LOGIN PASSWORD 'your_secure_password';
+    WHERE rolname = 'cse340_starter'
+) THEN CREATE ROLE cse340_starter WITH LOGIN PASSWORD 'your_secure_password';
 END IF;
 END $$;
 -- Create ENUM type for account_type
