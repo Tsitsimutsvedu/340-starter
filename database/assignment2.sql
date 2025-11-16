@@ -1,5 +1,4 @@
 -- 1 Create Tony Stark Account
-
 INSERT INTO public.account 
 (
     account_firstname,
@@ -16,7 +15,6 @@ VALUES
 UPDATE public.account 
 SET account_type = 'Admin' 
 WHERE account_email = 'tony@starkent.com';
-
 
 -- 3 Delete Tony from the db
 DELETE FROM public.account 
@@ -38,5 +36,3 @@ WHERE c.classification_name = 'Sport';
 UPDATE public.inventory
 SET inv_image = REPLACE(inv_image, '/images', '/images/vehicles'), 
     inv_thumbnail = REPLACE(inv_thumbnail, '/images', '/images/vehicles');
-
--- 7 Copy Paste 4 and 6 to db rebuild file
