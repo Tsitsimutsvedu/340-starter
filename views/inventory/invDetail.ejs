@@ -1,0 +1,11 @@
+<!-- Build detail view here -->
+<!-- Display the title of the page in the HTML, which can help SEO -->
+<% if (title) { %>
+<h1><%= title %></h1>
+<% } else { res.redirect('/') } %>
+
+<!-- In case any messages (Error or otherwise) need to be displayed -->
+<%# messages() %>
+
+<!-- Displays the main content of the page -->
+<%- details %>

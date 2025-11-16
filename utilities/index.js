@@ -1,267 +1,131 @@
-// utilities/index.js
-const invModel = require("../models/inventory-model");
+const invModel = require('../models/inventory-model');
 const Util = {};
-const jwt = require("jsonwebtoken")
-require("dotenv").config();
 
 /* ************************
  * Constructs the nav HTML unordered list
  ************************** */
-Util.getNav = async function () {
-  let data = await invModel.getClassifications();
-  let list = "<ul>";
-  list += '<li><a href="/" title="Home page">Home</a></li>';
-  data.rows.forEach((row) => {
-    list += `<li>
-      <a href="/inv/type/${row.classification_id}" 
-         title="See our inventory of ${row.classification_name} vehicles">
-        ${row.classification_name}
-      </a>
-    </li>`;
-  });
-  list += "</ul>";
-  return list;
+Util.getNav = async function (req, res, next) {
+	let data = await invModel.getClassifications();
+	let list = '<ul>';
+	list += '<li><a href="/" title="Home page">Home</a></li>';
+	data.rows.forEach((row) => {
+		list += '<li>';
+		list +=
+			'<a href="/inv/type/' +
+			row.classification_id +
+			'" title="See our inventory of ' +
+			row.classification_name +
+			' vehicles">' +
+			row.classification_name +
+			'</a>';
+		list += '</li>';
+	});
+	list += '</ul>';
+	return list;
 };
 
 /* **************************************
  * Build the classification view HTML
  * ************************************ */
 Util.buildClassificationGrid = async function (data) {
-  let grid = "";
-
-  if (data.length > 0) {
-    grid = '<ul id="inv-display">';
-    data.forEach((vehicle) => {
-      grid += `<li>
-        <a href="/inv/detail/${vehicle.inventory_id}" 
-           title="View ${vehicle.inv_make} ${vehicle.inv_model} details">
-          <img src="${vehicle.inv_thumbnail}" 
-               alt="Image of ${vehicle.inv_make} ${vehicle.inv_model} on CSE Motors" />
-        </a>
-        <div class="namePrice">
-          <hr />
-          <h2>
-            <a href="/inv/detail/${vehicle.inventory_id}" 
-               title="View ${vehicle.inv_make} ${vehicle.inv_model} details">
-              ${vehicle.inv_make} ${vehicle.inv_model}
-            </a>
-          </h2>
-          <span>$${new Intl.NumberFormat("en-US").format(vehicle.inv_price)}</span>
-        </div>
-      </li>`;
-    });
-    grid += "</ul>";
-  } else {
-    grid = '<p class="notice">Sorry, no matching vehicles could be found.</p>';
-  }
-
-  return grid;
+	let grid;
+	if (data.length > 0) {
+		grid = '<ul id="inv-display">';
+		data.forEach((vehicle) => {
+			grid += '<li>';
+			grid +=
+				'<a href="../../inv/details/' +
+				vehicle.inv_id +
+				'" title="View ' +
+				vehicle.inv_make +
+				' ' +
+				vehicle.inv_model +
+				'details"><img src="' +
+				vehicle.inv_thumbnail +
+				'" alt="Image of ' +
+				vehicle.inv_make +
+				' ' +
+				vehicle.inv_model +
+				' on CSE Motors" /></a>';
+			grid += '<div class="namePrice">';
+			grid += '<h2>';
+			grid +=
+				'<a href="../../inv/detail/' +
+				vehicle.inv_id +
+				'" title="View ' +
+				vehicle.inv_make +
+				' ' +
+				vehicle.inv_model +
+				' details">' +
+				vehicle.inv_make +
+				' ' +
+				vehicle.inv_model +
+				'</a>';
+			grid += '</h2>';
+			grid +=
+				'<span>$' +
+				new Intl.NumberFormat('en-US').format(vehicle.inv_price) +
+				'</span>';
+        grid += '<hr />';
+			grid += '</div>';
+			grid += '</li>';
+		});
+		grid += '</ul>';
+    
+	} else {
+		grid += '<p class="notice">Sorry, no matching vehicles could be found.</p>';
+	}
+	return grid;
 };
 
 /* **************************************
- * Build the single vehicle detail HTML
+ * Build the details view HTML
  * ************************************ */
-Util.buildVehicleDetail = function (vehicle) {
-  if (!vehicle) {
-    return "<p class='notice'>Vehicle data not available.</p>";
-  }
-
-  const dollarUS = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(vehicle.inv_price);
-
-  const miles = new Intl.NumberFormat("en-US").format(vehicle.inv_miles);
-
-  return `
-    <section class="vehicle-detail">
-      <img src="${vehicle.inv_image}" 
-           alt="Image of ${vehicle.inv_make} ${vehicle.inv_model}" 
-           class="vehicle-img" />
-      <div class="vehicle-info">
-        <h2>${vehicle.inv_year} ${vehicle.inv_make} ${vehicle.inv_model}</h2>
-        <p><strong>Price:</strong> ${dollarUS}</p>
-        <p><strong>Mileage:</strong> ${miles} miles</p>
-        <p><strong>Description:</strong> ${vehicle.inv_description}</p>
-        <p><strong>Color:</strong> ${vehicle.inv_color}</p>
-      </div>
-    </section>
-  `;
-};
-
-
-/* ************************
- * Error Handler Wrapper for Async Functions
- ************************** */
-Util.handleErrors = function (fn) {
-  return function (req, res, next) {
-    return Promise.resolve(fn(req, res, next)).catch(next);
-  };
-};
-
-
-/* ****************************************
-* Middleware to check token validity
-**************************************** */
-Util.checkJWTToken = (req, res, next) => {
- if (req.cookies.jwt) {
-  jwt.verify(
-   req.cookies.jwt,
-   process.env.ACCESS_TOKEN_SECRET,
-   function (err, accountData) {
-    if (err) {
-     req.flash("Please log in")
-     res.clearCookie("jwt")
-     return res.redirect("/account/login")
-    }
-    res.locals.accountData = accountData
-    res.locals.loggedin = 1
-    next()
-   })
- } else {
-  next()
- }
-}
-
-
-
-async function buildClassificationList(classification_id = null) {
-  const data = await invModel.getClassifications();
-  let classificationList =
-    '<select name="classification_id" id="classificationList" required>';
-  classificationList += "<option value=''>Choose a Classification</option>";
-
-  data.rows.forEach((row) => {
-    classificationList += `<option value="${row.classification_id}"`;
-    if (
-      classification_id !== null &&
-      row.classification_id == classification_id
-    ) {
-      classificationList += " selected";
-    }
-    classificationList += `>${row.classification_name}</option>`;
-  });
-
-  classificationList += "</select>";
-  return classificationList;
-}
-
-
-
-
-/* **************************************
- * Check if user is logged in
- ************************************** */
-Util.checkLogin = (req, res, next) => {
-  if (res.locals.loggedin) {
-    next()
-  } else {
-    req.flash("notice", "Please log in.")
-    res.redirect("/account/login")
-  }
-}
-
-
-/* ****************************************
-* Middleware to check if user has a specific account type (e.g., "Admin", "Employee")
-* ****************************************/
-Util.checkAccountType = (req, res, next) => {
-  console.log('--- checkAccountType Debug ---');
-  console.log('res.locals.loggedin:', res.locals.loggedin);
-  console.log('res.locals.accountData:', res.locals.accountData);
-
-  const accountType = res.locals.accountData ? res.locals.accountData.account_type : null;
-  console.log('Account Type:', accountType);
-
-  if (res.locals.loggedin && (accountType === 'Admin' || accountType === 'Employee')) {
-    console.log('User has sufficient permissions. Proceeding to next middleware.');
-    next();
-  } else {
-    console.log('User NOT logged in or insufficient permissions. Redirecting to /account/login');
-    req.flash("notice", "You do not have the necessary permissions to access this page.");
-    res.redirect("/account/login"); 
-  }
-};
-
-
-/* ****************************************
- * Middleware to check if user is logged in AND is Employee/Admin
- * *************************************** */
-Util.checkEmployeeAdminAuth = (req, res, next) => {
-  if (res.locals.loggedin) { 
-    try {
-      const token = req.cookies.jwt;
-      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
-      if (decoded.account_type === "Employee" || decoded.account_type === "Admin") {
-        next(); 
-      } else {
-
-        req.flash("notice", "You are not authorized to access this area.");
-        return res.redirect("/account/login");
-      }
-    } catch (error) {
-      console.error("Authorization error:", error);
-      req.flash("notice", "Please log in with appropriate credentials.");
-      return res.redirect("/account/login");
-    }
-  } else {
-    req.flash("notice", "Please log in to access this area.");
-    return res.redirect("/account/login");
-  }
+Util.buildInvDetail = async function (data) {
+	const car = data[0];
+	let details;
+	if (data.length > 0) {
+		// Build details view here
+		details = '<div id="inv-detail-display">';
+		details +=
+			'<img src="' +
+			car.inv_image +
+			'" alt="image of ' +
+			car.inv_make +
+			' ' +
+			car.inv_model +
+			'"/>';
+		let list = '<ul class="description-list">';
+		list +=
+			'<li id="description"><b>Description:</b> <br/>' +
+			car.inv_description +
+			'</li>';
+		list += '<li> <b>Color:</b> ' + car.inv_color + '</li>';
+		list +=
+			'<li> <b>Price:</b> $' +
+			parseInt(car.inv_price, 10).toLocaleString('en-US') +
+			'</li>';
+		list +=
+			'<li> <b>Mileage:</b> ' +
+			car.inv_miles.toLocaleString('en-US') +
+			' Miles</li>';
+		list +=
+			'<li><button id="add-to-cart" title="This button doesn\'t work right now!">Add To Cart</button></li>';
+		list += '</ul>';
+		details += list;
+		details += '</div>';
+	} else {
+		details += '<p class="notice">Sorry, looks like this page is empty!</p>';
+	}
+	return details;
 };
 
 /* ****************************************
- * Middleware to check if the logged-in user owns the account being updated
- * *************************************** */
-Util.checkAccountOwnership = (req, res, next) => {
-  if (res.locals.accountData && parseInt(req.params.account_id) === res.locals.accountData.account_id) {
-    next(); 
-  } else {
-    req.flash("notice", "You are not authorized to update this account.");
-    return res.redirect("/account/"); 
-  }
-};
+ * Middleware For Handling Errors
+ * Wrap other function in this for
+ * General Error Handling
+ **************************************** */
+Util.handleErrors = (fn) => (req, res, next) =>
+	Promise.resolve(fn(req, res, next)).catch(next);
 
-
-/* ****************************************
- * Middleware to check if user is logged in AND is Admin ONLY (NEW)
- * *************************************** */
-Util.checkAdminAuth = (req, res, next) => {
-  if (res.locals.loggedin) {
-    try {
-      const token = req.cookies.jwt;
-      const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
-      if (decoded.account_type === "Admin") { // Only check for "Admin"
-        next();
-      } else {
-        req.flash("notice", "You are not authorized to access this area. Admin access required.");
-        return res.redirect("/account/login");
-      }
-    } catch (error) {
-      console.error("Admin Authorization error:", error);
-      req.flash("notice", "Please log in with appropriate credentials.");
-      return res.redirect("/account/login");
-    }
-  } else {
-    req.flash("notice", "Please log in to access this area.");
-    return res.redirect("/account/login");
-  }
-};
-
-
-
-module.exports = {
-  getNav: Util.getNav,
-  buildClassificationGrid: Util.buildClassificationGrid,
-  buildVehicleDetail: Util.buildVehicleDetail,
-  checkLogin: Util.checkLogin,
-  buildClassificationList,
-  handleErrors: Util.handleErrors,
-  checkJWTToken: Util.checkJWTToken,
-  checkAccountType: Util.checkAccountType,
-  checkEmployeeAdminAuth: Util.checkEmployeeAdminAuth,
-  checkAccountOwnership: Util.checkAccountOwnership,
-  checkAdminAuth: Util.checkAdminAuth,
-};
+module.exports = Util;
