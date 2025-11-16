@@ -3,8 +3,7 @@
 CREATE TYPE public.account_type AS ENUM
     ('Client', 'Employee', 'Admin');
 
-ALTER TYPE public.account_type
-    OWNER TO cse340;
+-- Removed ALTER TYPE OWNER TO line (not valid on Render)
 
 -- Create classification table
 CREATE TABLE IF NOT EXISTS public.classification (
