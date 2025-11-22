@@ -1,0 +1,55 @@
+<!-- Display the title of the page in the HTML, which can help SEO -->
+<% if (title) { %>
+<h1><%= title %></h1>
+<% } else { res.redirect('/') } %>
+
+<!-- Display Messages -->
+<%- messages() %>
+
+<!-- Display Errors -->
+<% if (errors) { %>
+<ul class="notice">
+	<% errors.array().forEach(error => { %>
+	<li><%= error.msg %></li>
+	<% }) %>
+</ul>
+<% } %>
+
+<!-- Displays the login form -->
+
+<form class="login" action="/account/register" method="post">
+	<label
+		>*First name:
+		<input
+			type="text"
+			id="account_firstname"
+			name="account_firstname"
+			required 
+			value="<%= locals.account_firstname %>"/>
+	</label>
+	<label
+		>*Last name:
+		<input type="text" id="account_lastname" name="account_lastname" required value="<%= locals.account_lastname %>"/>
+	</label>
+	<label
+		>*Email address:
+		<input type="email" id="account_email" name="account_email" required value="<%= locals.account_email %>"/>
+	</label>
+	<label
+		>*Password:
+		<input
+			type="password"
+			id="account_password"
+			name="account_password"
+			pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{12,}$"
+			required />
+	</label>
+	<div>
+		<p>
+			Note: Passwords must be at least 12 characters, contain one capital
+			letter, one number, one special character
+		</p>
+	</div>
+	<input type="submit" value="Register" />
+	<p>Already have an Account? <a href="/account/login">Login</a></p>
+</form>

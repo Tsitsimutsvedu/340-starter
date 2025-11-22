@@ -191,8 +191,63 @@ button{
 	font-weight: bold;
 	cursor: pointer;
 }
-
 button:hover{
+	background-color: var(--tan);
+}
+.notice{
+	color: rgb(45, 165, 45);
+}
+.error{
+	color: rgb(194, 29, 29);
+}
+.login{
+	background-color: var(--tan);
+	/* width: 50%; */
+	max-width: 40%;
+	min-width: 20%;
+	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	border-radius: 8px;
+	padding: 1em;
+	font-family: var(--smallText);
+}
+.login input, select{
+	margin-bottom: 1em;
+	height: 30px;
+	border-radius: 8px;
+}
+.login input[type="submit"]{
+	width: 40%;
+	height: 35px;
+	margin: 0 auto;
+	margin-bottom: 1em;
+	border-radius: 8px;
+	background-color: var(--darkGrey);
+	color: var(--quillGrey);
+	cursor: pointer;
+}
+.login input[type="submit"]:hover{
+	background-color: var(--brown);
+}
+.login label{
+	display: flex;
+	flex-direction: column;
+}
+.login p{
+	margin: 0 auto;
+}
+.login a{
+	text-decoration: underline;
+}
+.button-link {
+	padding: 1em;
+	background-color: var(--teracotta);
+	font-style: bold;
+	margin-bottom: 1em;
+	margin-top: 1em;
+}
+.button-link:hover {
 	background-color: var(--tan);
 }
 footer {
