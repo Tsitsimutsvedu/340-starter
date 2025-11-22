@@ -1,22 +1,25 @@
 // Needed Resources
-const express = require('express');
-const router = new express.Router();
-const invController = require('../controllers/invController');
-const utilities = require('../utilities/');
-
+const express = require("express");
+const router = express.Router();
+const invController = require("../controllers/invController");
+const utilities = require("../utilities");
 
 // Route to build inventory by classification view
 router.get(
-	'/type/:classificationId',
-	utilities.handleErrors(invController.buildByClassificationId)
+  "/type/:classificationId",
+  utilities.handleErrors(invController.buildByClassificationId)
 );
 
-// Route to get Inventory Detail Page
+// Route to build inventory detail view (single vehicle)
 router.get(
-	'/details/:invId',
-	utilities.handleErrors(invController.buildInvDetail)
+  "/details/:invId",
+  utilities.handleErrors(invController.buildInvDetail)
 );
-router.get('/trigger500', utilities.handleErrors(invController.throwError));
 
+// Route to intentionally trigger a 500 error (for testing middleware)
+router.get(
+  "/trigger500",
+  utilities.handleErrors(invController.throwError)
+);
 
 module.exports = router;
