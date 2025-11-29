@@ -1,4 +1,6 @@
 const invModel = require('../models/inventory-model');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 const Util = {};
 
 /* ************************
@@ -66,12 +68,11 @@ Util.buildClassificationGrid = async function (data) {
 				'<span>$' +
 				new Intl.NumberFormat('en-US').format(vehicle.inv_price) +
 				'</span>';
-        grid += '<hr />';
+			grid += '<hr />';
 			grid += '</div>';
 			grid += '</li>';
 		});
 		grid += '</ul>';
-    
 	} else {
 		grid += '<p class="notice">Sorry, no matching vehicles could be found.</p>';
 	}
@@ -124,23 +125,23 @@ Util.buildInvDetail = async function (data) {
  * Build the dynamic select dropdown HTML
  * ************************************ */
 Util.buildClassificationList = async function (classification_id = null) {
-    let data = await invModel.getClassifications();
-    let classificationList =
-      '<select name="classification_id" id="classificationList" required>';
-    classificationList += "<option value=''>Choose a Classification</option>";
-    data.rows.forEach((row) => {
-      classificationList += '<option value="' + row.classification_id + '"';
-      if (
-        classification_id != null &&
-        Number(row.classification_id) === Number(classification_id)
-      ) {
-        classificationList += ' selected';
-      }
-      classificationList += ">" + row.classification_name + "</option>";
-    });
-    classificationList += "</select>";
-    return classificationList;
-  }
+	let data = await invModel.getClassifications();
+	let classificationList =
+		'<select name="classification_id" id="classificationList" required>';
+	classificationList += "<option value=''>Choose a Classification</option>";
+	data.rows.forEach((row) => {
+		classificationList += '<option value="' + row.classification_id + '"';
+		if (
+			classification_id != null &&
+			Number(row.classification_id) === Number(classification_id)
+		) {
+			classificationList += ' selected';
+		}
+		classificationList += '>' + row.classification_name + '</option>';
+	});
+	classificationList += '</select>';
+	return classificationList;
+};
 
 /* ****************************************
  * Middleware For Handling Errors
@@ -149,5 +150,64 @@ Util.buildClassificationList = async function (classification_id = null) {
  **************************************** */
 Util.handleErrors = (fn) => (req, res, next) =>
 	Promise.resolve(fn(req, res, next)).catch(next);
+
+/* ****************************************
+ * Middleware to check token validity
+ **************************************** */
+Util.checkJWTToken = (req, res, next) => {
+	if (req.cookies.jwt) {
+		jwt.verify(
+			req.cookies.jwt,
+			process.env.ACCESS_TOKEN_SECRET,
+			function (err, accountData) {
+				if (err) {
+					req.flash('Please log in');
+					res.clearCookie('jwt');
+					return res.redirect('/account/login');
+				}
+				res.locals.accountData = accountData;
+				res.locals.loggedin = 1;
+				next();
+			}
+		);
+	} else {
+		next();
+	}
+};
+
+/* ****************************************
+ *  Check Login
+ * ************************************ */
+Util.checkLogin = (req, res, next) => {
+	if (res.locals.loggedin) {
+		next();
+	} else {
+		req.flash('notice', 'Please log in');
+		return res.redirect('/account/login');
+	}
+};
+
+/* ****************************************
+ *  Check Admin/Employee
+ * ************************************ */
+Util.checkAdminEmployee = (req, res, next) => {
+	// Check if logged in and there is a token
+	if (res.locals.loggedin && req.cookies.jwt) {
+		// Veryify the account is either employee or admin
+		jwt.verify(req.cookies.jwt, process.env.ACCESS_TOKEN_SECRET, function(error, accountData){
+			// if the account is not an employee/admin, let them know that view is unauthorized and redirect to login
+			if(accountData.account_type !== 'Admin' || accountData.account_type !== 'Employee'){
+				req.flash('notice', 'Unauthorized.');
+				return res.redirect('/account/login');
+			}
+			// Otherwise move on
+			next();
+		})
+	} else {
+		// If not logged in, ask them to log in
+		req.flash('notice', 'Please log in');
+		return res.redirect('/account/login');
+	}
+};
 
 module.exports = Util;

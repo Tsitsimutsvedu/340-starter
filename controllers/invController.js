@@ -40,10 +40,27 @@ invCont.buildInvDetail = async function (req, res, next) {
  * ************************** */
 invCont.buildManagement = async function (req, res, next) {
 	let nav = await utilities.getNav();
+	const classificationSelect = await utilities.buildClassificationList();
 	res.render('./inventory/management', {
 		title: 'Inventory Management',
 		nav,
+		classificationSelect,
 	});
+};
+
+/* ***************************
+ *  Return Inventory by Classification As JSON
+ * ************************** */
+invCont.getInventoryJSON = async (req, res, next) => {
+	const classification_id = parseInt(req.params.classification_id);
+	const invData = await invModel.getInventoryByClassificationId(
+		classification_id
+	);
+	if (invData[0].inv_id) {
+		return res.json(invData);
+	} else {
+		next(new Error('No Data Returned'));
+	}
 };
 
 /* ***************************
@@ -155,6 +172,149 @@ invCont.throwError = async function (req, res) {
 	);
 	error.status = 500;
 	throw error;
+};
+
+/* ***************************
+ *  Build Edit Inventory  Page
+ * ************************** */
+invCont.buildEditInv = async function (req, res, next) {
+	const inv_id = parseInt(req.params.inv_id);
+	console.log(req.params.inv_id);
+	console.log(inv_id + typeof inv_id);
+	let nav = await utilities.getNav();
+	const itemData = (await invModel.getInvItemById(inv_id))[0];
+	let dropDown = await utilities.buildClassificationList(
+		itemData.classification_id
+	);
+	const itemName = `${itemData.inv_make} ${itemData.inv_model}`;
+	res.render('./inventory/edit-inventory', {
+		title: 'Edit ' + itemName,
+		nav,
+		dropDown: dropDown,
+		errors: null,
+		inv_id: itemData.inv_id,
+		inv_make: itemData.inv_make,
+		inv_model: itemData.inv_model,
+		inv_year: itemData.inv_year,
+		inv_description: itemData.inv_description,
+		inv_image: itemData.inv_image,
+		inv_thumbnail: itemData.inv_thumbnail,
+		inv_price: itemData.inv_price,
+		inv_miles: itemData.inv_miles,
+		inv_color: itemData.inv_color,
+		classification_id: itemData.classification_id,
+	});
+};
+
+/* ***************************
+ *  Handle Updating an Inventory Item
+ * ************************** */
+invCont.updateInventory = async function (req, res) {
+	let {
+		inv_id,
+		inv_make,
+		inv_model,
+		inv_year,
+		inv_description,
+		inv_image,
+		inv_thumbnail,
+		inv_price,
+		inv_miles,
+		inv_color,
+		classification_id,
+	} = req.body;
+	const updateResult = await invModel.updateInventory(
+		inv_id,
+		inv_make,
+		inv_model,
+		inv_year,
+		inv_description,
+		inv_image,
+		inv_thumbnail,
+		inv_price,
+		inv_miles,
+		inv_color,
+		classification_id
+	);
+	let nav = await utilities.getNav();
+	if (updateResult) {
+		const itemName = updateResult.inv_make + ' ' + updateResult.inv_model;
+		req.flash('notice', `The ${itemName} was successfully updated.`);
+		return res.redirect('/inv/');
+	} else {
+		let dropDown = await utilities.buildClassificationList(classification_id);
+		const itemName = `${inv_make} ${inv_model}`;
+		req.flash('notice', 'Sorry, the insert failed.');
+		res.status(501).render('inventory/edit-inventory', {
+			title: 'Edit ' + itemName,
+			nav,
+			dropDown: dropDown,
+			errors: null,
+			inv_id,
+			inv_make,
+			inv_model,
+			inv_year,
+			inv_description,
+			inv_image,
+			inv_thumbnail,
+			inv_price,
+			inv_miles,
+			inv_color,
+			classification_id,
+		});
+	}
+};
+
+/* ***************************
+ *  Build Delete Inventory Page
+ * ************************** */
+invCont.buildDeleteInv = async function (req, res, next) {
+	const inv_id = parseInt(req.params.inv_id);
+	console.log(req.params.inv_id);
+	console.log(inv_id + typeof inv_id);
+	let nav = await utilities.getNav();
+	const itemData = (await invModel.getInvItemById(inv_id))[0];
+	const itemName = `${itemData.inv_make} ${itemData.inv_model}`;
+	res.render('./inventory/delete-inventory', {
+		title: 'Delete ' + itemName,
+		nav,
+		errors: null,
+		inv_id: itemData.inv_id,
+		inv_make: itemData.inv_make,
+		inv_model: itemData.inv_model,
+		inv_year: itemData.inv_year,
+		inv_price: itemData.inv_price,
+		classification_id: itemData.classification_id,
+	});
+};
+
+/* ***************************
+ *  Handle Deleting an Inventory Item
+ * ************************** */
+invCont.deleteInventory = async function (req, res) {
+	let inv_id = parseInt(req.body.inv_id);
+	const deleteResult = await invModel.deleteInventory(
+		inv_id,
+	);
+	let nav = await utilities.getNav();
+	if (deleteResult) {
+		const itemName = deleteResult.inv_make + ' ' + deleteResult.inv_model;
+		req.flash('notice', `The item was successfully deleted.`);
+		return res.redirect('/inv/');
+	} else {
+		const itemName = `${inv_make} ${inv_model}`;
+		req.flash('notice', 'Sorry, the insert failed.');
+		res.status(501).render('inventory/delete-inventory', {
+			title: 'Edit ' + itemName,
+			nav,
+			errors: null,
+			inv_id,
+			inv_make,
+			inv_model,
+			inv_year,
+			inv_price,
+		});
+	}
 };
 
 module.exports = invCont;

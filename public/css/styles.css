@@ -211,6 +211,7 @@ button:hover{
 	border-radius: 8px;
 	padding: 1em;
 	font-family: var(--smallText);
+	margin-bottom: 1em;
 }
 .login input, select{
 	margin-bottom: 1em;
@@ -229,6 +230,14 @@ button:hover{
 }
 .login input[type="submit"]:hover{
 	background-color: var(--brown);
+}
+.login input[type="submit"]:disabled{
+	background-color: rgb(71, 22, 22);
+	color: white;
+}
+.login input[type="submit"]:hover:disabled{
+	background-color: rgb(144, 37, 37);
+	color: white;
 }
 .login label{
 	display: flex;
@@ -249,6 +258,19 @@ button:hover{
 }
 .button-link:hover {
 	background-color: var(--tan);
+}
+table {
+	border-collapse: collapse;
+}
+table a:hover{
+	text-decoration: underline;
+}
+tr:nth-child(even){
+	background-color: var(--quillGrey);
+}
+td, th {
+	border: 1px solid var(--darkGrey);
+	padding: .5em;
 }
 footer {
 	margin-top: 3em;
