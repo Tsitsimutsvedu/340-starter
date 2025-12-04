@@ -9,7 +9,7 @@ importers:
   .:
     dependencies:
       bcryptjs:
-        specifier: ^3.0.3
+        specifier: ^3.0.2
         version: 3.0.3
       body-parser:
         specifier: ^2.2.0
@@ -42,7 +42,7 @@ importers:
         specifier: ^1.18.2
         version: 1.18.2
       express-validator:
-        specifier: ^7.3.0
+        specifier: ^7.2.1
         version: 7.3.0
       jsonwebtoken:
         specifier: ^9.0.2
