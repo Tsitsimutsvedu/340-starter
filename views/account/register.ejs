@@ -1,55 +1,65 @@
-<!-- Display the title of the page in the HTML, which can help SEO -->
-<% if (title) { %>
 <h1><%= title %></h1>
-<% } else { res.redirect('/') } %>
 
-<!-- Display Messages -->
-<%- messages() %>
 
-<!-- Display Errors -->
-<% if (errors) { %>
-<ul class="notice">
-	<% errors.array().forEach(error => { %>
-	<li><%= error.msg %></li>
-	<% }) %>
-</ul>
+<% if (errors && errors.array().length > 0) { %>
+  <ul class="form-errors">
+    <% errors.array().forEach(error => { %>
+      <li><%= error.msg %></li>
+    <% }) %>
+  </ul>
 <% } %>
 
-<!-- Displays the login form -->
 
-<form class="login" action="/account/register" method="post">
-	<label
-		>*First name:
-		<input
-			type="text"
-			id="account_firstname"
-			name="account_firstname"
-			required 
-			value="<%= locals.account_firstname %>"/>
-	</label>
-	<label
-		>*Last name:
-		<input type="text" id="account_lastname" name="account_lastname" required value="<%= locals.account_lastname %>"/>
-	</label>
-	<label
-		>*Email address:
-		<input type="email" id="account_email" name="account_email" required value="<%= locals.account_email %>"/>
-	</label>
-	<label
-		>*Password:
-		<input
-			type="password"
-			id="account_password"
-			name="account_password"
-			pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{12,}$"
-			required />
-	</label>
-	<div>
-		<p>
-			Note: Passwords must be at least 12 characters, contain one capital
-			letter, one number, one special character
-		</p>
-	</div>
-	<input type="submit" value="Register" />
-	<p>Already have an Account? <a href="/account/login">Login</a></p>
-</form>
+
+<!-- Centered Flash Message outside container -->
+<div class="flash-container">
+  <%- messages() %>
+</div>
+
+<div class="register-container">
+
+  <h2 class="registration-stat"><%- messages() %></h2>
+
+  <form action="/account/register" method="post">
+    <label for="account_firstname">First Name</label>
+    <input type="text" name="account_firstname" id="accountFirstname" required value="<%= locals.account_firstname %>">
+
+    <label for="account_lastname">Last Name</label>
+    <input type="text" name="account_lastname" id="accountLastname" required value="<%= locals.account_lastname %>">
+
+    <label for="account_email">Email</label>
+    <input type="email" name="account_email" id="accountEmail" required value="<%= locals.account_email %>">
+
+    <label for="account_password">Password</label>
+    <div class="password-rules">
+    Passwords must be at least <strong>12 characters</strong> and contain:
+      <ul>
+        <li>1 uppercase letter</li>
+        <li>1 number</li>
+        <li>1 special character</li>
+      </ul>
+    </div>
+    <input 
+      type="password"
+      name="account_password"
+      id="accountPassword"
+      required
+      pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{12,}$"
+      placeholder="Create a strong password">
+      <label>
+        <input type="checkbox" onclick="togglePassword()"> Show Password
+      </label>
+
+    <button type="submit">Register</button>
+  </form>
+
+  <p>Already have an account? <a href="/account/login">Log in</a></p>
+</div>
+
+
+<script>
+  function togglePassword() {
+    const pwd = document.getElementById("accountPassword");
+    pwd.type = pwd.type === "password" ? "text" : "password";
+  }
+</script>
