@@ -1,121 +1,109 @@
+// TEST ACCOUNT CREDENTIALS FOR APPLICATION TESTING
+// Test Account test@test.com TestPassword123!
+// Basic Client basic@340.edu I@mABas1cCl!3nt
+// Happy Employee happy@340.edu I@mAnEmpl0y33
+// Manager User manager@340.edu I@mAnAdm!n1strat0r
 /* ******************************************
- * This server.js file is the primary file of the 
+ * This server.js file is the primary file of the
  * application. It is used to control the project.
  *******************************************/
-
 /* ***********************
  * Require Statements
  *************************/
-require("dotenv").config();
-
-const express = require("express");
-const expressLayouts = require("express-ejs-layouts");
-const session = require("express-session");
-const flash = require("connect-flash");
-const pgStore = require("connect-pg-simple")(session);
-const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
-const utilities = require("./utilities/");
-const pool = require("./database/");
-
-/* ******************************************
- * CSE Motors App Server Setup
- *******************************************/
+const express = require('express');
+const env = require('dotenv').config();
 const app = express();
-
-/* ***********************
- * Global Middleware
- *************************/
-app.use(async (req, res, next) => {
-  try {
-    const nav = await utilities.getNav();
-    res.locals.nav = nav; // available to all views
-    next();
-  } catch (err) {
-    console.error("❌ nav middleware error:", err);
-    next(err);
-  }
-});
-
-/* ***********************
- * Session & Flash Middleware
- *************************/
-app.use(session({
-  store: new pgStore({
-    pool,
-    createTableIfMissing: true,
-  }),
-  secret: process.env.SESSION_SECRET || "fallbackSecret", // ensure this is set in Render
-  resave: false,              // recommended default
-  saveUninitialized: false,   // recommended default
-  name: "sessionId",
-  cookie: {
-    secure: process.env.NODE_ENV === "production", // secure cookies in production
-    httpOnly: true,
-  }
-}));
-
-app.use(flash());
-
-app.use((req, res, next) => {
-  res.locals.messages = require("express-messages")(req, res);
-  next();
-});
+const static = require('./routes/static');
+const expressLayouts = require('express-ejs-layouts');
+const baseController = require('./controllers/baseController');
+const inventoryRoute = require('./routes/inventoryRoute');
+const accountRoute = require('./routes/accountRoute');
+const utilities = require('./utilities/');
+const session = require('express-session');
+const pool = require('./database');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 /* ***********************
  * Middleware
- *************************/
-app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+ * ************************/
+app.use(
+	session({
+		store: new (require('connect-pg-simple')(session))({
+			createTableIfMissing: true,
+			pool,
+		}),
+		secret: process.env.SESSION_SECRET,
+		resave: true,
+		saveUninitialized: true,
+		name: 'sessionId',
+	})
+);
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); // for form data parsing
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(cookieParser());
 app.use(utilities.checkJWTToken);
 
+// Express Messages Middleware
+app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+	res.locals.messages = require('express-messages')(req, res);
+	next();
+});
+
 /* ***********************
- * View Engine & Layouts
+ * View engine and templates
  *************************/
-app.set("view engine", "ejs");
+app.set('view engine', 'ejs');
 app.use(expressLayouts);
-app.set("layout", "./layouts/layout");
+app.set('layout', './layouts/layout'); // not at views root
 
 /* ***********************
  * Routes
  *************************/
-const staticRoutes = require("./routes/static");
-const inventoryRoutes = require("./routes/inventoryRoute");
-const baseController = require("./controllers/baseController");
-const accountRoute = require("./routes/accountRoute");
-
-app.use("/", staticRoutes);
-app.get("/", baseController.buildHome);
-app.use("/inv", inventoryRoutes);
-app.use("/account", accountRoute);
-
-/* ***********************
- * 404 & Error Handling
- *************************/
-app.use((req, res) => {
-  res.status(404).render("404", {
-    title: "Page Not Found",
-    message: "Sorry, we appear to have lost that page.",
-  });
-});
-
-app.use((err, req, res, next) => {
-  console.error("❌ Server Error:", err.message);
-  res.status(500).render("error", {
-    title: "Server Error",
-    message: err.message,
-  });
+app.use(static);
+// Index route
+app.get('/', utilities.handleErrors(baseController.buildHome));
+// Inventory route
+app.use('/inv', inventoryRoute);
+// Account route
+app.use('/account', accountRoute);
+// File Not Found Route - must be last route in list
+app.use(async (req, res, next) => {
+	next({ status: 404, message: 'Sorry, we appear to have lost that page.' });
 });
 
 /* ***********************
- * Server Startup
+ * Express Error Handler
+ * Place after all other middleware
  *************************/
-const port = process.env.PORT || 5500;
+app.use(async (err, req, res, next) => {
+	let nav = await utilities.getNav();
+	console.error(`Error at: "${req.originalUrl}": ${err.message}`);
+	if (err.status == 404) {
+		message = err.message;
+	} else if (err.status === 500) {
+		message = err.message;
+	} else {
+		message = ' Oh no! There was a crash. Maybe try a different route?';
+	}
+	res.render('errors/error', {
+		title: err.status || 'Server Error',
+		message,
+		nav,
+	});
+});
 
+/* ***********************
+ * Local Server Information
+ * Values from .env (environment) file
+ *************************/
+const port = process.env.PORT;
+const host = process.env.HOST;
+
+/* ***********************
+ * Log statement to confirm server operation
+ *************************/
 app.listen(port, () => {
-  console.log(`🚗 CSE Motors running at http://localhost:${port}`);
+	console.log(`app listening on ${host}:${port}`);
 });

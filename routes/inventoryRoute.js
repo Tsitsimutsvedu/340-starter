@@ -1,88 +1,98 @@
-// routes/inventoryRoute.js
-
 // Needed Resources
-const express = require("express")
-const router = new express.Router()
-const invController = require("../controllers/invController")
-const invVal = require("../utilities/inventory-validation");
-const utils = require("../utilities");
-const utilities = require("../utilities");
+const express = require('express');
+const router = new express.Router();
+const invController = require('../controllers/invController');
+const utilities = require('../utilities/');
+const invValidate = require('../utilities/inventory-validation');
 
+// Route to get to base Management page
+router.get(
+	'/',
+	utilities.checkAdminEmployee,
+	utilities.handleErrors(invController.buildManagement)
+);
+
+// Route to get classification management
+router.get(
+	'/add-classification',
+	utilities.checkAdminEmployee,
+	utilities.handleErrors(invController.buildAddClassification)
+);
+
+// Route to handle adding a classification
+router.post(
+	'/add-classification',
+	utilities.checkAdminEmployee,
+	invValidate.classificationRules(),
+	invValidate.checkClassData,
+	utilities.handleErrors(invController.addClassification)
+);
+
+// Route to build add inventory
+router.get(
+	'/add-inventory',
+	utilities.checkAdminEmployee,
+	utilities.handleErrors(invController.buildAddInventory)
+);
+
+// Route to handle adding a vehicle
+router.post(
+	'/add-inventory',
+	utilities.checkAdminEmployee,
+	invValidate.inventoryRules(),
+	invValidate.checkInvData,
+	utilities.handleErrors(invController.addInventory)
+);
 
 // Route to build inventory by classification view
-router.get("/type/:classificationId", invController.buildByClassificationId);
-router.get("/detail/:invId", invController.buildVehicleDetail);
-router.get("/trigger-error", invController.throwError);
-
-
-// Inventory Management View
-router.get("/",
-  utilities.checkEmployeeAdminAuth,
-  invController.buildManagement
+router.get(
+	'/type/:classificationId',
+	utilities.handleErrors(invController.buildByClassificationId)
 );
 
-
+// Route to get Inventory Detail Page
 router.get(
-  "/getInventory/:classification_id",
-  utilities.checkAccountType,
-  utilities.handleErrors(invController.getInventoryJSON)
-)
-
-
-// Add Classification Routes
-router.get("/add-classification", invController.buildAddClassification);
-router.post(
-  "/add-classification",
-  utilities.checkEmployeeAdminAuth,
-  invVal.checkClassificationName,
-  invVal.handleClassificationErrors,
-  invController.insertClassification
-)
-
-
-// Add Inventory Routes
-router.get("/add-inventory", invController.buildAddInventory);
-router.post(
-  "/add-inventory",
-  utilities.checkEmployeeAdminAuth,
-  invVal.checkInventoryData,           
-  invVal.handleInventoryErrors,        
-  invController.insertInventory        
-)
-
-
-// Route to build the edit inventory view (ADD THIS NEW ROUTE)
-router.get(
-  "/edit/:inv_id",
-  utilities.checkEmployeeAdminAuth,
-  utilities.handleErrors(invController.editInventoryView) 
-)
-
-
-// Route to handle the update inventory data (ADD THIS NEW ROUTE)
-router.post(
-  "/update/",
-  utilities.checkEmployeeAdminAuth,
-  invVal.checkInventoryData, 
-  invVal.checkUpdateData,    
-  utilities.handleErrors(invController.updateInventory) 
-)
-
-
-// Route to build the delete confirmation view
-router.get(
-  "/delete/:inv_id",
-  utilities.checkEmployeeAdminAuth,
-  utilities.handleErrors(invController.deleteView) 
+	'/details/:invId',
+	utilities.handleErrors(invController.buildInvDetail)
 );
 
-// Route to handle the actual deletion
-router.post(
-  "/delete/",
-  utilities.checkEmployeeAdminAuth,
-  utilities.handleErrors(invController.deleteItem) 
+// Route to get inventory items by classification in the management page
+router.get(
+	'/getInventory/:classification_id',
+	utilities.handleErrors(invController.getInventoryJSON)
 );
 
+// Route to start to modify inventory items by id
+router.get(
+	'/edit/:inv_id',
+	utilities.checkAdminEmployee,
+	utilities.handleErrors(invController.buildEditInv)
+);
 
+// Route to start deleting an item
+router.get(
+	'/delete/:inv_id',
+	utilities.checkAdminEmployee,
+	utilities.handleErrors(invController.buildDeleteInv)
+);
+
+// Route to handle actual deleting of item
+router.post(
+	'/delete/',
+	utilities.checkAdminEmployee,
+	utilities.handleErrors(invController.deleteInventory)
+);
+
+// Route to handle actual submission of modified inv item
+router.post(
+	'/update/',
+	utilities.checkAdminEmployee,
+	invValidate.inventoryRules(),
+	invValidate.checkUpdateData,
+	utilities.handleErrors(invController.updateInventory)
+);
+
+// Route to trigger 500 series error
+router.get('/trigger500', utilities.handleErrors(invController.throwError));
 
 module.exports = router;

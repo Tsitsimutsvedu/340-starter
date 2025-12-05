@@ -1,0 +1,74 @@
+<!-- Display the title of the page in the HTML, which can help SEO -->
+<% if (title) { %>
+<h1><%= title %></h1>
+<% } else { res.redirect('/') } %>
+
+<!-- Display Messages -->
+<%- messages() %>
+
+<!-- Display Errors -->
+<% if (errors) { %>
+<ul class="notice">
+	<% errors.array().forEach(error => { %>
+	<li><%= error.msg %></li>
+	<% }) %>
+</ul>
+<% } %>
+
+<!-- Displays the Classification form -->
+
+<form id="updateForm" class="login" action="/inv/delete" method="post">
+	<label
+		>Vehicle Make:
+		<input
+			type="text"
+			id="inv_make"
+			name="inv_make"
+			pattern="^[A-Za-z0-9]+$"
+			required
+			value="<%= locals.inv_make %>" 
+            readonly/>
+	</label>
+	<label
+		>Vehicle Model:
+		<input
+			type="text"
+			id="inv_model"
+			name="inv_model"
+			pattern="^[A-Za-z0-9]+$"
+			required
+			value="<%= locals.inv_model %>" 
+            readonly/>
+	</label>
+	<label
+		>Vehicle Year:
+		<input
+			type="number"
+			id="inv_year"
+			name="inv_year"
+			maxlength="4"
+			minlength="4"
+			required
+			value="<%= locals.inv_year %>" 
+            readonly/>
+	</label>
+	<label
+		>Vehicle Price:
+		<input
+			type="number"
+			id="inv_price"
+			name="inv_price"
+			min="0"
+			required
+			value="<%= locals.inv_price %>" 
+            readonly/>
+	</label>
+    	<div>
+		<p>
+			Confirm Delete - THIS ACTION IS PERMANENT.
+		</p>
+	</div>
+	<input  type="submit" name="submit" value="Delete Item"/>
+	<input type="hidden" name="inv_id" <% if(locals.inv_id) { %>
+	value="<%= locals.inv_id %>" <% } %> >
+</form>

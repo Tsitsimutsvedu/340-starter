@@ -1,61 +1,116 @@
+<!-- Display the title of the page in the HTML, which can help SEO -->
+<% if (title) { %>
 <h1><%= title %></h1>
+<% } else { res.redirect('/') } %>
 
+<!-- Display Messages -->
 <%- messages() %>
 
+<!-- Display Errors -->
 <% if (errors) { %>
-    <ul class="notice">
-        <% errors.forEach(error => { %>
-            <li><%= error.msg %></li>
-        <% }) %>
-    </ul>
+<ul class="notice">
+	<% errors.array().forEach(error => { %>
+	<li><%= error.msg %></li>
+	<% }) %>
+</ul>
 <% } %>
 
-<form action="/inv/update" method="post" class="inventory-form" id="updateForm">
-    <fieldset>
-        <legend>Vehicle Information</legend>
+<!-- Displays the Classification form -->
 
-        <label for="classificationList">Classification:</label>
-        <%- classificationSelect %>
-
-        <label for="inv_make">Make:</label>
-        <input type="text" id="inv_make" name="inv_make" required
-                value="<%= locals.inv_make %>">
-
-        <label for="inv_model">Model:</label>
-        <input type="text" id="inv_model" name="inv_model" required
-                value="<%= locals.inv_model %>">
-
-        <label for="inv_description">Description:</label>
-        <textarea id="inv_description" name="inv_description" rows="4" required><%= locals.inv_description %></textarea>
-
-        <label for="inv_image">Image Path:</label>
-        <input type="text" id="inv_image" name="inv_image" required
-                value="<%= locals.inv_image %>">
-
-        <label for="inv_thumbnail">Thumbnail Path:</label>
-        <input type="text" id="inv_thumbnail" name="inv_thumbnail" required
-                value="<%= locals.inv_thumbnail %>">
-
-        <label for="inv_price">Price:</label>
-        <input type="number" id="inv_price" name="inv_price" required
-                value="<%= locals.inv_price %>" min="0" step="0.01">
-
-        <label for="inv_year">Year:</label>
-        <input type="number" id="inv_year" name="inv_year" required
-                value="<%= locals.inv_year %>" min="1900" max="<%= new Date().getFullYear() + 1 %>">
-
-        <label for="inv_miles">Miles:</label>
-        <input type="number" id="inv_miles" name="inv_miles" required
-                value="<%= locals.inv_miles %>" min="0">
-
-        <label for="inv_color">Color:</label>
-        <input type="text" id="inv_color" name="inv_color" required
-                value="<%= locals.inv_color %>">
-
-        <input type="submit" name="submit" value="Update Vehicle" class="primary-button" disabled>
-
-        <input type="hidden" name="inv_id" value="<%= locals.inv_id %>">
-    </fieldset>
+<form id="updateForm" class="login" action="/inv/update" method="post">
+	<label
+		>Vehicle Make:
+		<input
+			type="text"
+			id="inv_make"
+			name="inv_make"
+			pattern="^[A-Za-z0-9]+$"
+			required
+			value="<%= locals.inv_make %>" />
+	</label>
+	<label
+		>Vehicle Model:
+		<input
+			type="text"
+			id="inv_model"
+			name="inv_model"
+			pattern="^[A-Za-z0-9]+$"
+			required
+			value="<%= locals.inv_model %>" />
+	</label>
+	<label
+		>Vehicle Year:
+		<input
+			type="number"
+			id="inv_year"
+			name="inv_year"
+			maxlength="4"
+			minlength="4"
+			required
+			value="<%= locals.inv_year %>" />
+	</label>
+	<label
+		>Vehicle Description:
+		<input
+			type="text"
+			id="inv_description"
+			name="inv_description"
+			required
+			value="<%= locals.inv_description %>" />
+	</label>
+	<!-- Image and Thumbnail url for sending in request to imitate a real req -->
+	<label>
+		<input
+			type="hidden"
+			id="inv_image"
+			name="inv_image"
+			value="/images/vehicles/no-image.png" />
+	</label>
+	<label>
+		<input
+			type="hidden"
+			id="inv_thumbnail"
+			name="inv_thumbnail"
+			value="/images/vehicles/no-image-tn.png" />
+	</label>
+	<label
+		>Vehicle Price:
+		<input
+			type="number"
+			id="inv_price"
+			name="inv_price"
+			min="0"
+			required
+			value="<%= locals.inv_price %>" />
+	</label>
+	<label
+		>Vehicle Miles:
+		<input
+			type="number"
+			id="inv_miles"
+			name="inv_miles"
+			required
+			value="<%= locals.inv_miles %>" />
+	</label>
+	<label
+		>Vehicle Color:
+		<input
+			type="text"
+			id="inv_color"
+			name="inv_color"
+			pattern="^[A-Za-z0-9 ]+$"
+			required
+			value="<%= locals.inv_color %>" />
+	</label>
+	<label
+		>Vehicle Classification:
+		<!-- Dynamically generated in utilities/index.js -->
+		<%- dropDown %>
+	</label>
+	<input  type="submit" name="submit" value="Update Item" disabled/>
+	<input type="hidden" name="inv_id" <% if(locals.inv_id) { %>
+	value="<%= locals.inv_id %>" <% } %> >
 </form>
-</main>
-<script src="/js/inv-update.js"></script>
+
+
+<script src="../../js/inv-update.js"></script>

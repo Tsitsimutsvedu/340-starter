@@ -1,0 +1,35 @@
+<!-- Display the title of the page in the HTML, which can help SEO -->
+<% if (title) { %>
+<h1><%= title %></h1>
+<% } else { res.redirect('/') } %>
+
+<!-- Display Messages -->
+<%- messages() %>
+
+<!-- Display Errors -->
+<% if (errors) { %>
+<ul class="notice">
+	<% errors.array().forEach(error => { %>
+	<li><%= error.msg %></li>
+	<% }) %>
+</ul>
+<% } %>
+
+<!-- Displays the delete form -->
+ <h3>Are you sure you want to delete your account <%= locals.accountData.account_firstname%>?</h3>
+<form class="login" action="/account/removeAccount" method="post">
+	<label
+		>Please type 'Confirm'
+		<input
+			type="text"
+			id="confirm_delete"
+			name="confirm_delete"
+			required
+			pattern="^Confirm$" />
+	</label>
+	<input
+		type="hidden"
+		name="account_id"
+		value="<%= locals.accountData.account_id %>" />
+	<input type="submit" value="DELETE"/>
+</form>
