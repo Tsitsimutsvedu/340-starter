@@ -1,12 +1,5 @@
-// TEST ACCOUNT CREDENTIALS FOR APPLICATION TESTING
-// Test Account: test@test.com  TestPassword123!
-// Basic Client: basic@340.edu  I@mABas1cCl!3nt
-// Happy Employee: happy@340.edu  I@mAnEmpl0y33
-// Manager User: manager@340.edu  I@mAnAdm!n1strat0r
-
 /* ******************************************
- * This server.js file is the primary file of the
- * application. It is used to control the project.
+ * Primary server.js file for the application
  *******************************************/
 
 /* ***********************
@@ -42,8 +35,9 @@ app.use(
     name: 'sessionId',
   })
 );
+
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(utilities.checkJWTToken);
 
@@ -51,6 +45,16 @@ app.use(utilities.checkJWTToken);
 app.use(require('connect-flash')());
 app.use(function (req, res, next) {
   res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
+/* ***********************
+ * Global Template Variables
+ *************************/
+// ✅ Fix: Ensure loggedIn and account are always defined
+app.use((req, res, next) => {
+  res.locals.loggedIn = req.session?.loggedIn || false;
+  res.locals.account = req.session?.account || null;
   next();
 });
 
@@ -85,7 +89,6 @@ app.use(async (req, res, next) => {
 
 /* ***********************
  * Express Error Handler
- * Place after all other middleware
  *************************/
 app.use(async (err, req, res, next) => {
   let nav = await utilities.getNav();
@@ -107,13 +110,12 @@ app.use(async (err, req, res, next) => {
 
 /* ***********************
  * Local Server Information
- * Values from .env (environment) file
  *************************/
-const port = process.env.PORT;
-const host = process.env.HOST;
+const port = process.env.PORT || 5500;
+const host = process.env.HOST || 'localhost';
 
 /* ***********************
- * Log statement to confirm server operation
+ * Start Server
  *************************/
 app.listen(port, () => {
   console.log(`app listening on ${host}:${port}`);
