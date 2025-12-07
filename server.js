@@ -8,17 +8,21 @@
 const express = require('express');
 const env = require('dotenv').config();
 const app = express();
-const static = require('./routes/static');
 const expressLayouts = require('express-ejs-layouts');
+const session = require('express-session');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const flash = require('connect-flash');
+const messages = require('express-messages');
+const pool = require('./database');
+
+// Routes & Controllers
+const staticRoutes = require('./routes/static');
 const baseController = require('./controllers/baseController');
 const inventoryRoute = require('./routes/inventoryRoute');
 const accountRoute = require('./routes/accountRoute');
-const feedbackRoute = require('./routes/feedbackRoute'); // NEW feedback route
+const feedbackRoute = require('./routes/feedbackRoute');
 const utilities = require('./utilities/');
-const session = require('express-session');
-const pool = require('./database');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
 
 /* ***********************
  * Middleware
@@ -30,8 +34,8 @@ app.use(
       pool,
     }),
     secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     name: 'sessionId',
   })
 );
@@ -39,22 +43,32 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(utilities.checkJWTToken);
 
-// Express Messages Middleware
-app.use(require('connect-flash')());
+// Flash messages
+app.use(flash());
 app.use(function (req, res, next) {
-  res.locals.messages = require('express-messages')(req, res);
+  res.locals.messages = messages(req, res);
   next();
 });
 
 /* ***********************
  * Global Template Variables
  *************************/
-// ✅ Fix: Ensure loggedIn and account are always defined
 app.use((req, res, next) => {
-  res.locals.loggedIn = req.session?.loggedIn || false;
-  res.locals.account = req.session?.account || null;
+  res.locals.loggedIn = false;
+  res.locals.account = null;
+
+  // If JWT cookie exists, decode it
+  const token = req.cookies?.jwt;
+  if (token) {
+    try {
+      const payload = utilities.decodeJWTToken(token); // implement decode in utilities
+      res.locals.loggedIn = true;
+      res.locals.account = payload;
+    } catch (err) {
+      console.error('Invalid JWT:', err.message);
+    }
+  }
   next();
 });
 
@@ -63,27 +77,27 @@ app.use((req, res, next) => {
  *************************/
 app.set('view engine', 'ejs');
 app.use(expressLayouts);
-app.set('layout', './layouts/layout'); // not at views root
+app.set('layout', './layouts/layout');
 
 /* ***********************
  * Routes
  *************************/
-app.use(static);
+app.use(staticRoutes);
 
 // Index route
 app.get('/', utilities.handleErrors(baseController.buildHome));
 
-// Inventory route
+// Inventory route (JWT guard applied inside inventoryRoute)
 app.use('/inv', inventoryRoute);
 
-// Account route
+// Account route (login/register must NOT be guarded)
 app.use('/account', accountRoute);
 
-// Feedback route (NEW)
+// Feedback route
 app.use('/feedback', feedbackRoute);
 
-// File Not Found Route - must be last route in list
-app.use(async (req, res, next) => {
+// File Not Found Route - must be last
+app.use((req, res, next) => {
   next({ status: 404, message: 'Sorry, we appear to have lost that page.' });
 });
 
@@ -93,15 +107,12 @@ app.use(async (req, res, next) => {
 app.use(async (err, req, res, next) => {
   let nav = await utilities.getNav();
   console.error(`Error at: "${req.originalUrl}": ${err.message}`);
-  let message;
-  if (err.status == 404) {
-    message = err.message;
-  } else if (err.status === 500) {
-    message = err.message;
-  } else {
-    message = 'Oh no! There was a crash. Maybe try a different route?';
-  }
-  res.render('errors/error', {
+  let message =
+    err.status === 404 || err.status === 500
+      ? err.message
+      : 'Oh no! There was a crash. Maybe try a different route?';
+
+  res.status(err.status || 500).render('errors/error', {
     title: err.status || 'Server Error',
     message,
     nav,

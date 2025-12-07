@@ -5,76 +5,79 @@ const accountController = require('../controllers/accountController');
 const utilities = require('../utilities/');
 const regValidate = require('../utilities/account-validation');
 
-// Default route for account management
+/* ******************************************
+ * Account Routes
+ ******************************************/
+
+// Default route for account management (requires login)
 router.get(
-	'/',
-	utilities.checkLogin,
-	utilities.handleErrors(accountController.buildAccount)
+  '/',
+  utilities.checkLogin,
+  utilities.handleErrors(accountController.buildAccount)
 );
 
-// Route for login
+// Login form (open)
 router.get('/login', utilities.handleErrors(accountController.buildLogin));
 
-// Route for logout
-router.get('/logout', utilities.handleErrors(accountController.logout));
+// Process login attempt (open)
+router.post(
+  '/login',
+  regValidate.loginRules(),
+  regValidate.checkLogData,
+  utilities.handleErrors(accountController.login)
+);
 
-// Route for registration form
+// Logout (requires login)
+router.get('/logout', utilities.checkLogin, utilities.handleErrors(accountController.logout));
+
+// Registration form (open)
+router.get('/register', utilities.handleErrors(accountController.buildRegister));
+
+// Process registration (open)
+router.post(
+  '/register',
+  regValidate.registrationRules(),
+  regValidate.checkRegData,
+  utilities.handleErrors(accountController.registerAccount)
+);
+
+// Build account update view (requires login)
 router.get(
-	'/register',
-	utilities.handleErrors(accountController.buildRegister)
+  '/update/:accountId',
+  utilities.checkLogin,
+  utilities.handleErrors(accountController.buildAccountUpdate)
 );
 
-// Route to actually register
+// Process account info update (requires login)
 router.post(
-	'/register',
-	regValidate.registrationRules(),
-	regValidate.checkRegData,
-	utilities.handleErrors(accountController.registerAccount)
+  '/update',
+  utilities.checkLogin,
+  regValidate.updateRules(),
+  regValidate.checkUpdateData,
+  utilities.handleErrors(accountController.updateAccount)
 );
 
-// Process the login attempt
+// Process password update (requires login)
 router.post(
-	'/login',
-	regValidate.loginRules(),
-	regValidate.checkLogData,
-	utilities.handleErrors(accountController.login)
+  '/update-password',
+  utilities.checkLogin,
+  regValidate.updatePasswordRules(),
+  regValidate.checkUpdatePasswordData,
+  utilities.handleErrors(accountController.updatePassword)
 );
 
-// Route to build account update page
+// Build delete account view (requires login)
 router.get(
-	'/update/:accountId',
-	utilities.checkLogin,
-	utilities.handleErrors(accountController.buildAccountManager)
+  '/remove',
+  utilities.checkLogin,
+  utilities.handleErrors(accountController.buildDeleteAccount)
 );
 
-// Route to handle updating name/email
+// Process account deletion (requires login)
 router.post(
-	'/update',
-	regValidate.updateRules(),
-	regValidate.checkUpdateData,
-	utilities.handleErrors(accountController.updateAccount)
-);
-
-// Route to handle updating password
-router.post(
-	'/updatePassword',
-	regValidate.updatePasswordRules(),
-	regValidate.checkUpdatePasswordData,
-	utilities.handleErrors(accountController.updatePassword)
-);
-
-// Route to handle deleting account view
-router.get(
-	'/removeAccount',
-	utilities.checkLogin,
-	utilities.handleErrors(accountController.buildDeleteAccount)
-);
-
-// Route to handle deleting the account
-router.post(
-	'/removeAccount',
-	utilities.checkLogin,
-	utilities.handleErrors(accountController.deleteAccount)
+  '/remove',
+  utilities.checkLogin,
+  utilities.handleErrors(accountController.deleteAccount)
 );
 
 module.exports = router;
