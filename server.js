@@ -1,88 +1,49 @@
 /* ******************************************
- * Primary server.js file for the application
+ * This server.js file is the primary file of the
+ * application. It is used to control the project.
  *******************************************/
-
 /* ***********************
  * Require Statements
  *************************/
 const express = require('express');
-require('dotenv').config();
+const env = require('dotenv').config();
 const app = express();
+const static = require('./routes/static');
 const expressLayouts = require('express-ejs-layouts');
-const session = require('express-session');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const flash = require('connect-flash');
-const messages = require('express-messages');
-const pool = require('./database');
-
-// Routes & Controllers
-const staticRoutes = require('./routes/static');
 const baseController = require('./controllers/baseController');
 const inventoryRoute = require('./routes/inventoryRoute');
 const accountRoute = require('./routes/accountRoute');
-const feedbackRoute = require('./routes/feedbackRoute');
 const utilities = require('./utilities/');
+const session = require('express-session');
+const pool = require('./database');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 /* ***********************
  * Middleware
- *************************/
-
-// Trust proxy (important for secure cookies behind Render/Heroku/etc.)
-app.set('trust proxy', 1);
-
-// Session middleware
+ * ************************/
 app.use(
-  session({
-    store: new (require('connect-pg-simple')(session))({
-      createTableIfMissing: true,
-      pool,
-    }),
-    secret: process.env.SESSION_SECRET || 'change_this_secret',
-    resave: false,
-    saveUninitialized: false,
-    name: 'sessionId',
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // only secure in prod
-      sameSite: 'lax',
-      maxAge: 1000 * 60 * 60 * 8, // 8 hours
-    },
-  })
+	session({
+		store: new (require('connect-pg-simple')(session))({
+			createTableIfMissing: true,
+			pool,
+		}),
+		secret: process.env.SESSION_SECRET,
+		resave: true,
+		saveUninitialized: true,
+		name: 'sessionId',
+	})
 );
-
-// Body parsers
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-// Cookie parser
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
 app.use(cookieParser());
+app.use(utilities.checkJWTToken);
 
-// Flash messages
-app.use(flash());
-app.use((req, res, next) => {
-  res.locals.messages = messages(req, res);
-  next();
-});
-
-/* ***********************
- * Global Template Variables
- *************************/
-app.use((req, res, next) => {
-  res.locals.loggedIn = false;
-  res.locals.account = null;
-
-  const token = req.cookies?.jwt;
-  if (token) {
-    try {
-      const payload = utilities.decodeJWTToken(token);
-      res.locals.loggedIn = true;
-      res.locals.account = payload;
-    } catch (err) {
-      console.error('Invalid JWT:', err.message);
-    }
-  }
-  next();
+// Express Messages Middleware
+app.use(require('connect-flash')());
+app.use(function (req, res, next) {
+	res.locals.messages = require('express-messages')(req, res);
+	next();
 });
 
 /* ***********************
@@ -90,58 +51,55 @@ app.use((req, res, next) => {
  *************************/
 app.set('view engine', 'ejs');
 app.use(expressLayouts);
-app.set('layout', './layouts/layout');
+app.set('layout', './layouts/layout'); // not at views root
 
 /* ***********************
  * Routes
  *************************/
-app.use(staticRoutes);
-
+app.use(static);
 // Index route
 app.get('/', utilities.handleErrors(baseController.buildHome));
-
-// Inventory route (JWT guard applied inside inventoryRoute)
+// Inventory route
 app.use('/inv', inventoryRoute);
-
-// Account route (login/register must NOT be guarded)
+// Account route
 app.use('/account', accountRoute);
-
-// Feedback route
-app.use('/feedback', feedbackRoute);
-
-// File Not Found Route - must be last
-app.use((req, res, next) => {
-  next({ status: 404, message: 'Sorry, we appear to have lost that page.' });
+// File Not Found Route - must be last route in list
+app.use(async (req, res, next) => {
+	next({ status: 404, message: 'Sorry, we appear to have lost that page.' });
 });
 
 /* ***********************
  * Express Error Handler
+ * Place after all other middleware
  *************************/
 app.use(async (err, req, res, next) => {
-  let nav = await utilities.getNav();
-  console.error(`Error at: "${req.originalUrl}": ${err.message}`);
-  let message =
-    err.status === 404 || err.status === 500
-      ? err.message
-      : 'Oh no! There was a crash. Maybe try a different route?';
-
-  res.status(err.status || 500).render('errors/error', {
-    title: err.status || 'Server Error',
-    message,
-    nav,
-  });
+	let nav = await utilities.getNav();
+	console.error(`Error at: "${req.originalUrl}": ${err.message}`);
+	if (err.status == 404) {
+		message = err.message;
+	} else if (err.status === 500) {
+		message = err.message;
+	} else {
+		message = ' Oh no! There was a crash. Maybe try a different route?';
+	}
+	res.render('errors/error', {
+		title: err.status || 'Server Error',
+		message,
+		nav,
+	});
 });
 
 /* ***********************
  * Local Server Information
+ * Values from .env (environment) file
  *************************/
-const port = process.env.PORT || 10000; // Render expects dynamic PORT
-const host = process.env.HOST || '0.0.0.0';
+const port = process.env.PORT;
+const host = process.env.HOST;
 
 /* ***********************
- * Start Server
+ * Log statement to confirm server operation
  *************************/
-app.listen(port, host, () => {
-  console.log(`✅ App listening on ${host}:${port}`);
+app.listen(port, () => {
+	console.log(`app listening on ${host}:${port}`);
 });
 
