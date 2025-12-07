@@ -6,7 +6,7 @@
  * Require Statements
  *************************/
 const express = require('express');
-const env = require('dotenv').config();
+require('dotenv').config();
 const app = express();
 const expressLayouts = require('express-ejs-layouts');
 const session = require('express-session');
@@ -27,26 +27,40 @@ const utilities = require('./utilities/');
 /* ***********************
  * Middleware
  *************************/
+
+// Trust proxy (important for secure cookies behind Render/Heroku/etc.)
+app.set('trust proxy', 1);
+
+// Session middleware
 app.use(
   session({
     store: new (require('connect-pg-simple')(session))({
       createTableIfMissing: true,
       pool,
     }),
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'change_this_secret',
     resave: false,
     saveUninitialized: false,
     name: 'sessionId',
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production', // only secure in prod
+      sameSite: 'lax',
+      maxAge: 1000 * 60 * 60 * 8, // 8 hours
+    },
   })
 );
 
+// Body parsers
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+// Cookie parser
 app.use(cookieParser());
 
 // Flash messages
 app.use(flash());
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   res.locals.messages = messages(req, res);
   next();
 });
@@ -58,11 +72,10 @@ app.use((req, res, next) => {
   res.locals.loggedIn = false;
   res.locals.account = null;
 
-  // If JWT cookie exists, decode it
   const token = req.cookies?.jwt;
   if (token) {
     try {
-      const payload = utilities.decodeJWTToken(token); // implement decode in utilities
+      const payload = utilities.decodeJWTToken(token);
       res.locals.loggedIn = true;
       res.locals.account = payload;
     } catch (err) {
@@ -122,12 +135,13 @@ app.use(async (err, req, res, next) => {
 /* ***********************
  * Local Server Information
  *************************/
-const port = process.env.PORT || 5500;
-const host = process.env.HOST || 'localhost';
+const port = process.env.PORT || 10000; // Render expects dynamic PORT
+const host = process.env.HOST || '0.0.0.0';
 
 /* ***********************
  * Start Server
  *************************/
-app.listen(port, () => {
-  console.log(`app listening on ${host}:${port}`);
+app.listen(port, host, () => {
+  console.log(`✅ App listening on ${host}:${port}`);
 });
+

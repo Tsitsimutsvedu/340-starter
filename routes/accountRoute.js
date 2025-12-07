@@ -1,6 +1,6 @@
 // Needed Resources
 const express = require('express');
-const router = new express.Router();
+const router = express.Router();
 const accountController = require('../controllers/accountController');
 const utilities = require('../utilities/');
 const regValidate = require('../utilities/account-validation');
@@ -9,17 +9,17 @@ const regValidate = require('../utilities/account-validation');
  * Account Routes
  ******************************************/
 
-// Default route for account management (requires login)
+// Default account dashboard (requires login)
 router.get(
   '/',
   utilities.checkLogin,
   utilities.handleErrors(accountController.buildAccount)
 );
 
-// Login form (open)
+// Login form (public)
 router.get('/login', utilities.handleErrors(accountController.buildLogin));
 
-// Process login attempt (open)
+// Process login attempt (public)
 router.post(
   '/login',
   regValidate.loginRules(),
@@ -28,12 +28,12 @@ router.post(
 );
 
 // Logout (requires login)
-router.get('/logout', utilities.checkLogin, utilities.handleErrors(accountController.logout));
+router.post('/logout', utilities.checkLogin, utilities.handleErrors(accountController.logout));
 
-// Registration form (open)
+// Registration form (public)
 router.get('/register', utilities.handleErrors(accountController.buildRegister));
 
-// Process registration (open)
+// Process registration (public)
 router.post(
   '/register',
   regValidate.registrationRules(),
@@ -81,3 +81,4 @@ router.post(
 );
 
 module.exports = router;
+
