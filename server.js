@@ -6,7 +6,7 @@
  * Require Statements
  *************************/
 const express = require('express');
-const env = require('dotenv').config();
+require('dotenv').config();
 const app = express();
 const staticRoutes = require('./routes/static');
 const expressLayouts = require('express-ejs-layouts');
@@ -87,7 +87,9 @@ app.use('/feedback', feedbackRoute);
 // Favicon route to prevent errors
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
-// File Not Found Route - must be last
+/* ***********************
+ * File Not Found Route - must be last
+ *************************/
 app.use((req, res, next) => {
   next({ status: 404, message: 'Sorry, we appear to have lost that page.' });
 });
@@ -99,7 +101,7 @@ app.use(async (err, req, res, next) => {
   let nav = await utilities.getNav();
   console.error(`Error at: "${req.originalUrl}": ${err.message}`);
   const status = err.status || 500;
-  let message = err.message || 'Unexpected server error';
+  const message = err.message || 'Unexpected server error';
   res.status(status).render('errors/error', {
     title: status,
     message,
@@ -110,8 +112,8 @@ app.use(async (err, req, res, next) => {
 /* ***********************
  * Local Server Information
  *************************/
-const port = process.env.PORT || 10000; // Render expects 10000
-const host = process.env.HOST || '0.0.0.0';
+const port = process.env.PORT || 10000; // Render sets PORT automatically
+const host = '0.0.0.0';
 
 /* ***********************
  * Start Server
@@ -119,3 +121,4 @@ const host = process.env.HOST || '0.0.0.0';
 app.listen(port, host, () => {
   console.log(`✅ App listening on ${host}:${port}`);
 });
+s
