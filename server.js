@@ -41,9 +41,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// JWT check AFTER parsers
-app.use(utilities.checkJWTToken);
-
 // Flash messages
 app.use(flash());
 app.use((req, res, next) => {
@@ -75,14 +72,14 @@ app.use(staticRoutes);
 // Index route
 app.get('/', utilities.handleErrors(baseController.buildHome));
 
-// Inventory route
-app.use('/inv', inventoryRoute);
+// Inventory route (protected with JWT)
+app.use('/inv', utilities.checkJWTToken, inventoryRoute);
 
-// Account route
+// Feedback route (protected with JWT)
+app.use('/feedback', utilities.checkJWTToken, feedbackRoute);
+
+// Account route (mixed: login/register public, others protected inside accountRoute.js)
 app.use('/account', accountRoute);
-
-// Feedback route
-app.use('/feedback', feedbackRoute);
 
 // Favicon route to prevent errors
 app.get('/favicon.ico', (req, res) => res.status(204).end());

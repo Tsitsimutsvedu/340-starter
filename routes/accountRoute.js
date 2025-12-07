@@ -9,20 +9,22 @@ const regValidate = require('../utilities/account-validation');
  * Account Routes
  *************************/
 
-// Default account management (protected)
+// Default account management dashboard (protected)
 router.get(
   '/',
   utilities.checkLogin,
   utilities.handleErrors(accountController.buildAccount)
 );
 
-// Login form (public)
+/* ===== Public Routes ===== */
+
+// Login form
 router.get(
   '/login',
   utilities.handleErrors(accountController.buildLogin)
 );
 
-// Process login attempt (public)
+// Process login attempt
 router.post(
   '/login',
   regValidate.loginRules(),
@@ -30,20 +32,13 @@ router.post(
   utilities.handleErrors(accountController.login)
 );
 
-// Logout (protected)
-router.get(
-  '/logout',
-  utilities.checkLogin,
-  utilities.handleErrors(accountController.logout)
-);
-
-// Registration form (public)
+// Registration form
 router.get(
   '/register',
   utilities.handleErrors(accountController.buildRegister)
 );
 
-// Process registration (public)
+// Process registration
 router.post(
   '/register',
   regValidate.registrationRules(),
@@ -51,14 +46,23 @@ router.post(
   utilities.handleErrors(accountController.registerAccount)
 );
 
-// Account update page (protected)
+/* ===== Protected Routes ===== */
+
+// Logout
+router.get(
+  '/logout',
+  utilities.checkLogin,
+  utilities.handleErrors(accountController.logout)
+);
+
+// Account update page
 router.get(
   '/update/:accountId',
   utilities.checkLogin,
   utilities.handleErrors(accountController.buildAccountManager)
 );
 
-// Update name/email (protected)
+// Update name/email
 router.post(
   '/update',
   utilities.checkLogin,
@@ -67,7 +71,7 @@ router.post(
   utilities.handleErrors(accountController.updateAccount)
 );
 
-// Update password (protected)
+// Update password
 router.post(
   '/updatePassword',
   utilities.checkLogin,
@@ -76,14 +80,14 @@ router.post(
   utilities.handleErrors(accountController.updatePassword)
 );
 
-// Delete account view (protected)
+// Delete account view
 router.get(
   '/removeAccount',
   utilities.checkLogin,
   utilities.handleErrors(accountController.buildDeleteAccount)
 );
 
-// Delete account action (protected)
+// Delete account action
 router.post(
   '/removeAccount',
   utilities.checkLogin,
