@@ -8,41 +8,18 @@
 const express = require('express');
 require('dotenv').config();
 const app = express();
-<<<<<<< HEAD
-const static = require('./routes/static');
-=======
-const staticRoutes = require('./routes/static');
->>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
+
 const expressLayouts = require('express-ejs-layouts');
 const baseController = require('./controllers/baseController');
 const inventoryRoute = require('./routes/inventoryRoute');
 const accountRoute = require('./routes/accountRoute');
 const feedbackRoute = require('./routes/feedbackRoute');
+const staticRoutes = require('./routes/static');
 const utilities = require('./utilities/');
 const session = require('express-session');
 const pool = require('./database');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-<<<<<<< HEAD
-
-/* ***********************
- * Middleware
- * ************************/
-app.use(
-	session({
-		store: new (require('connect-pg-simple')(session))({
-			createTableIfMissing: true,
-			pool,
-		}),
-		secret: process.env.SESSION_SECRET,
-		resave: true,
-		saveUninitialized: true,
-		name: 'sessionId',
-	})
-);
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-=======
 const flash = require('connect-flash');
 
 /* ***********************
@@ -63,16 +40,8 @@ app.use(
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
->>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
 app.use(cookieParser());
 
-<<<<<<< HEAD
-// Express Messages Middleware
-app.use(require('connect-flash')());
-app.use(function (req, res, next) {
-	res.locals.messages = require('express-messages')(req, res);
-	next();
-=======
 // Flash messages
 app.use(flash());
 app.use((req, res, next) => {
@@ -87,7 +56,6 @@ app.use((req, res, next) => {
   res.locals.loggedIn = req.session?.loggedIn || false;
   res.locals.account = req.session?.account || null;
   next();
->>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
 });
 
 /* ***********************
@@ -104,15 +72,6 @@ app.use(staticRoutes);
 
 // Index route
 app.get('/', utilities.handleErrors(baseController.buildHome));
-<<<<<<< HEAD
-// Inventory route
-app.use('/inv', inventoryRoute);
-// Account route
-app.use('/account', accountRoute);
-// File Not Found Route - must be last route in list
-app.use(async (req, res, next) => {
-	next({ status: 404, message: 'Sorry, we appear to have lost that page.' });
-=======
 
 // Inventory route (protected with JWT)
 app.use('/inv', utilities.checkJWTToken, inventoryRoute);
@@ -120,7 +79,7 @@ app.use('/inv', utilities.checkJWTToken, inventoryRoute);
 // Feedback route (protected with JWT)
 app.use('/feedback', utilities.checkJWTToken, feedbackRoute);
 
-// Account route (mixed: login/register public, others protected inside accountRoute.js)
+// Account route
 app.use('/account', accountRoute);
 
 // Favicon route to prevent errors
@@ -131,61 +90,33 @@ app.get('/favicon.ico', (req, res) => res.status(204).end());
  *************************/
 app.use((req, res, next) => {
   next({ status: 404, message: 'Sorry, we appear to have lost that page.' });
->>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
 });
 
 /* ***********************
  * Express Error Handler
  *************************/
 app.use(async (err, req, res, next) => {
-<<<<<<< HEAD
-	let nav = await utilities.getNav();
-	console.error(`Error at: "${req.originalUrl}": ${err.message}`);
-	if (err.status == 404) {
-		message = err.message;
-	} else if (err.status === 500) {
-		message = err.message;
-	} else {
-		message = ' Oh no! There was a crash. Maybe try a different route?';
-	}
-	res.render('errors/error', {
-		title: err.status || 'Server Error',
-		message,
-		nav,
-	});
-=======
   let nav = await utilities.getNav();
   console.error(`Error at: "${req.originalUrl}": ${err.message}`);
   const status = err.status || 500;
-  const message = err.message || 'Unexpected server error';
+  const message =
+    err.message || 'Oh no! There was a crash. Maybe try a different route?';
   res.status(status).render('errors/error', {
     title: status,
     message,
     nav,
   });
->>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
 });
 
 /* ***********************
  * Local Server Information
  *************************/
-<<<<<<< HEAD
-const port = process.env.PORT;
-const host = process.env.HOST;
-=======
 const port = process.env.PORT || 10000; // Render sets PORT automatically
-const host = '0.0.0.0';
->>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
+const host = process.env.HOST || '0.0.0.0';
 
 /* ***********************
  * Start Server
  *************************/
-<<<<<<< HEAD
-app.listen(port, () => {
-	console.log(`app listening on ${host}:${port}`);
-});
-=======
 app.listen(port, host, () => {
   console.log(`✅ App listening on ${host}:${port}`);
 });
->>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
