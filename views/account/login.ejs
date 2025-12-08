@@ -1,49 +1,49 @@
-<!-- Display the title of the page -->
+<!-- Display the title of the page in the HTML, which can help SEO -->
 <% if (title) { %>
-  <h1><%= title %></h1>
-<% } %>
+<h1><%= title %></h1>
+<% } else { res.redirect('/') } %> <%- messages() %>
 
 <!-- Display Messages -->
+ <!-- Added to try and validate login -->
 <%- messages() %>
 
 <!-- Display Errors -->
+  <!-- Added to try and validate login -->
 <% if (errors) { %>
-  <ul class="notice">
-    <% errors.array().forEach(error => { %>
-      <li><%= error.msg %></li>
-    <% }) %>
-  </ul>
+<ul class="notice">
+	<% errors.array().forEach(error => { %>
+	<li><%= error.msg %></li>
+	<% }) %>
+</ul>
 <% } %>
 
-<!-- Login Form -->
+<!-- Displays the login form -->
+
 <form class="login" action="/account/login" method="post">
-  <label>
-    Email:
-    <input
-      type="text"
-      id="account_email"
-      name="account_email"
-      required
-      value="<%= account_email || '' %>" />
-  </label>
-
-  <label>
-    Password:
-    <input
-      type="password"
-      id="account_password"
-      name="account_password"
-      pattern="^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\\s).{12,}$"
-      required />
-  </label>
-
-  <div>
-    <p>
-      Note: Passwords must be at least 12 characters, contain one capital
-      letter, one number, and one special character.
-    </p>
-  </div>
-
-  <input type="submit" value="Login" />
-  <p>No Account? <a href="/account/register">Sign Up</a></p>
+	<label
+		>Email:
+		<input
+			type="text"
+			id="account_email"
+			name="account_email"
+			required
+			value="<%= locals.account_email %>" />
+	</label>
+	<label
+		>Password:
+		<input
+			type="text"
+			id="account_password"
+			name="account_password"
+			pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9])(?!.*\s).{12,}$"
+			required />
+	</label>
+	<div>
+		<p>
+			Note: Passwords must be at least 12 characters, contain one capital
+			letter, one number, one special character
+		</p>
+	</div>
+	<input type="submit" value="Login" />
+	<p>No Account? <a href="/account/register">Sign Up</a></p>
 </form>
