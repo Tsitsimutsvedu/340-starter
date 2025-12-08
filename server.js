@@ -1,23 +1,29 @@
 /* ******************************************
- * This server.js file is the primary file of the
- * application. It is used to control the project.
+ * Primary server.js file for the application
  *******************************************/
+
 /* ***********************
  * Require Statements
  *************************/
 const express = require('express');
-const env = require('dotenv').config();
+require('dotenv').config();
 const app = express();
+<<<<<<< HEAD
 const static = require('./routes/static');
+=======
+const staticRoutes = require('./routes/static');
+>>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
 const expressLayouts = require('express-ejs-layouts');
 const baseController = require('./controllers/baseController');
 const inventoryRoute = require('./routes/inventoryRoute');
 const accountRoute = require('./routes/accountRoute');
+const feedbackRoute = require('./routes/feedbackRoute');
 const utilities = require('./utilities/');
 const session = require('express-session');
 const pool = require('./database');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+<<<<<<< HEAD
 
 /* ***********************
  * Middleware
@@ -36,14 +42,52 @@ app.use(
 );
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-app.use(cookieParser());
-app.use(utilities.checkJWTToken);
+=======
+const flash = require('connect-flash');
 
+/* ***********************
+ * Middleware
+ *************************/
+app.use(
+  session({
+    store: new (require('connect-pg-simple')(session))({
+      createTableIfMissing: true,
+      pool,
+    }),
+    secret: process.env.SESSION_SECRET || 'defaultsecret',
+    resave: false,
+    saveUninitialized: false,
+    name: 'sessionId',
+  })
+);
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+>>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
+app.use(cookieParser());
+
+<<<<<<< HEAD
 // Express Messages Middleware
 app.use(require('connect-flash')());
 app.use(function (req, res, next) {
 	res.locals.messages = require('express-messages')(req, res);
 	next();
+=======
+// Flash messages
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
+/* ***********************
+ * Global Template Variables
+ *************************/
+app.use((req, res, next) => {
+  res.locals.loggedIn = req.session?.loggedIn || false;
+  res.locals.account = req.session?.account || null;
+  next();
+>>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
 });
 
 /* ***********************
@@ -51,14 +95,16 @@ app.use(function (req, res, next) {
  *************************/
 app.set('view engine', 'ejs');
 app.use(expressLayouts);
-app.set('layout', './layouts/layout'); // not at views root
+app.set('layout', './layouts/layout');
 
 /* ***********************
  * Routes
  *************************/
-app.use(static);
+app.use(staticRoutes);
+
 // Index route
 app.get('/', utilities.handleErrors(baseController.buildHome));
+<<<<<<< HEAD
 // Inventory route
 app.use('/inv', inventoryRoute);
 // Account route
@@ -66,13 +112,33 @@ app.use('/account', accountRoute);
 // File Not Found Route - must be last route in list
 app.use(async (req, res, next) => {
 	next({ status: 404, message: 'Sorry, we appear to have lost that page.' });
+=======
+
+// Inventory route (protected with JWT)
+app.use('/inv', utilities.checkJWTToken, inventoryRoute);
+
+// Feedback route (protected with JWT)
+app.use('/feedback', utilities.checkJWTToken, feedbackRoute);
+
+// Account route (mixed: login/register public, others protected inside accountRoute.js)
+app.use('/account', accountRoute);
+
+// Favicon route to prevent errors
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
+/* ***********************
+ * File Not Found Route - must be last
+ *************************/
+app.use((req, res, next) => {
+  next({ status: 404, message: 'Sorry, we appear to have lost that page.' });
+>>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
 });
 
 /* ***********************
  * Express Error Handler
- * Place after all other middleware
  *************************/
 app.use(async (err, req, res, next) => {
+<<<<<<< HEAD
 	let nav = await utilities.getNav();
 	console.error(`Error at: "${req.originalUrl}": ${err.message}`);
 	if (err.status == 404) {
@@ -87,18 +153,39 @@ app.use(async (err, req, res, next) => {
 		message,
 		nav,
 	});
+=======
+  let nav = await utilities.getNav();
+  console.error(`Error at: "${req.originalUrl}": ${err.message}`);
+  const status = err.status || 500;
+  const message = err.message || 'Unexpected server error';
+  res.status(status).render('errors/error', {
+    title: status,
+    message,
+    nav,
+  });
+>>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
 });
 
 /* ***********************
  * Local Server Information
- * Values from .env (environment) file
  *************************/
+<<<<<<< HEAD
 const port = process.env.PORT;
 const host = process.env.HOST;
+=======
+const port = process.env.PORT || 10000; // Render sets PORT automatically
+const host = '0.0.0.0';
+>>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
 
 /* ***********************
- * Log statement to confirm server operation
+ * Start Server
  *************************/
+<<<<<<< HEAD
 app.listen(port, () => {
 	console.log(`app listening on ${host}:${port}`);
 });
+=======
+app.listen(port, host, () => {
+  console.log(`✅ App listening on ${host}:${port}`);
+});
+>>>>>>> parent of 58f4e45 (Merge branch 'main' of https://github.com/Tsitsimutsvedu/340-starter)
