@@ -1,0 +1,8 @@
+<% if (locals.accountData) { %>
+  <form action="/favorites/add" method="POST" class="favorite-form">
+    <input type="hidden" name="inv_id" value="<%= details.inv_id %>">
+    <button type="submit">❤️ Add to Favorites</button>
+  </form>
+<% } else { %>
+  <p><a href="/account/login">Log in</a> to add this vehicle to your favorites.</p>
+<% } %>
