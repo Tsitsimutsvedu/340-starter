@@ -1,0 +1,69 @@
+<h1><%- title %></h1>
+
+<%- messages() %>
+
+<!-- Display validation errors -->
+<% if (errors) { %>
+  <ul class="notice">
+    <% errors.array().forEach(error => { %>
+      <li><%= error.msg %></li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<h2>Update Account Information</h2>
+
+<form action="/account/update" method="POST" class="account-form">
+  <input type="hidden" name="account_id" value="<%= account_id %>">
+
+  <label for="account_firstname">First Name</label>
+  <input 
+    type="text" 
+    id="account_firstname" 
+    name="account_firstname"
+    required
+    value="<%= account_firstname %>"
+  >
+
+  <label for="account_lastname">Last Name</label>
+  <input 
+    type="text" 
+    id="account_lastname" 
+    name="account_lastname" 
+    required
+    value="<%= account_lastname %>"
+  >
+
+  <label for="account_email">Email</label>
+  <input 
+    type="email" 
+    id="account_email" 
+    name="account_email"
+    required
+    value="<%= account_email %>"
+  >
+
+  <button type="submit">Update Account</button>
+</form>
+
+<hr>
+
+<h2>Update Password</h2>
+
+<form action="/account/update-password" method="POST" class="account-form">
+  <input type="hidden" name="account_id" value="<%= account_id %>">
+
+  <label for="account_password">New Password</label>
+  <input
+    type="password"
+    id="account_password"
+    name="account_password"
+    required
+  >
+
+  <button type="submit">Update Password</button>
+</form>
+
+<hr>
+
+<p><a href="/account/">Back to Account Management</a></p>

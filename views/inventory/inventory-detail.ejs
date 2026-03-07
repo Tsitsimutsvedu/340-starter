@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%include('../partials/head')%>
+</head>
+
+<body>
+    <header>
+        <% include('../partials/header') %>
+    </header>
+
+    <main class="container" role="main">
+        <article>
+            <h1>
+                <%= (vehicle.year || '' ) + ' ' + (vehicle.make || vehicle.inv_make || '' ) + ' ' + (vehicle.model ||
+                    vehicle.inv_model || '' ) %>
+            </h1>
+
+            <div class="vehicle-row" aria-labelledby="veh-heading">
+                <div class="vehicle-image">
+                    <% const img=vehicle.image_full || vehicle.inv_image || vehicle.image || vehicle.thumbnail || '' ;
+                        %>
+                        <img src="<%= img %>" alt="<%= vehicle.make %> <%= vehicle.model %>" />
+                </div>
+
+                <div class="vehicle-info">
+                    <p style="font-size:1.5rem;font-weight:700;margin:0.25rem 0;">
+                        <%= utilities.formatMoney(vehicle.price || vehicle.inv_price) %>
+                    </p>
+                    <p style="margin:0.25rem 0;">
+                        Mileage: <strong>
+                            <%= utilities.formatNumber(vehicle.mileage || vehicle.inv_miles || vehicle.miles) %> miles
+                        </strong>
+                    </p>
+
+                    <section aria-label="Vehicle description" style="margin-top:1rem;">
+                        <h2 style="font-size:1rem;margin-bottom:.25rem;">Description</h2>
+                        <p>
+                            <%= vehicle.description || vehicle.inv_description || 'No description available.' %>
+                        </p>
+                    </section>
+
+                    <section aria-label="Specifications" style="margin-top:1rem;">
+                        <h3 style="font-size:1rem;margin-bottom:.25rem;">Specifications</h3>
+                        <ul>
+                            <% if (vehicle.color) { %>
+                                <li><strong>Color:</strong>
+                                    <%= vehicle.color %>
+                                </li>
+                                <% } %>
+                                    <% if (vehicle.transmission) { %>
+                                        <li><strong>Transmission:</strong>
+                                            <%= vehicle.transmission %>
+                                        </li>
+                                        <% } %>
+                                            <% if (vehicle.fuel) { %>
+                                                <li><strong>Fuel:</strong>
+                                                    <%= vehicle.fuel %>
+                                                </li>
+                                                <% } %>
+                                                    <% if (vehicle.body_style) { %>
+                                                        <li><strong>Body style:</strong>
+                                                            <%= vehicle.body_style %>
+                                                        </li>
+                                                        <% } %>
+                        </ul>
+                    </section>
+
+                    <div style="margin-top:1rem;">
+                        <p>
+                            <a href="/inventory">← Back to Inventory</a>
+                        </p>
+                        <p>
+                            <a href="/service/list/<%= vehicle.inv_id %>">🛠 View Service History</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </article>
+        <%- vehicleDetail %>
+    </main>
+
+    <footer>
+        <% include('../partials/footer')  %>
+    </footer>
+</body>
+
+</html>

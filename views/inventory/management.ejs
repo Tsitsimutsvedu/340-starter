@@ -1,0 +1,21 @@
+<h1> <%= title %> </h1>
+<!-- flash message output will be here in the messages-->
+<%- messages() %>
+    <!-- Management navigation option in MVC aproach -->
+    <ul class="no-bullet">
+        <li>
+            <a href="/inv/addClassification" class="btn">Add New Classification</a> <!-- path corrected as needed for week 4 in-->
+        </li>
+        <li>
+            <a href="/inv/addInventory" class="btn">Add New Vehicle</a> <!-- path corrected as needed for week 4-->
+        </li>
+    </ul>
+
+    <h2>Manage Inventory</h2>
+    <div class="input-box">
+        <p>Select a classification from the list to see the items belonging to that classification.</p>
+        <!-- Classification drop-down injected by invcontroller-->
+        <%- classificationSelect %>
+            <!-- Inventory table to be populated by inventory.js in public folder -->
+            <table id="inventoryDisplay"></table>
+    </div>
