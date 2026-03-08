@@ -1,33 +1,34 @@
-// the system stuff
-const express = require("express");
-const expressLayouts = require("express-ejs-layouts");
-const session = require("express-session");
-const pgSession = require("connect-pg-simple")(session);
-const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
-require("dotenv").config();
+// System dependencies
+const express = require("express")
+const expressLayouts = require("express-ejs-layouts")
+const session = require("express-session")
+const pgSession = require("connect-pg-simple")(session)
+const bodyParser = require("body-parser")
+const cookieParser = require("cookie-parser")
+require("dotenv").config()
 
-// the files i have to edit
-const static = require("./routes/static");
-const baseController = require("./controllers/baseController");
-const inventoryRoute = require("./routes/inventoryRoute.js");
-const accountRoute = require("./routes/accountRoute.js");
-const messageRoute = require("./routes/messageRoute.js");
-const intentionalErrorRoute = require("./routes/intentionalErrorRoute.js");
-const utilities = require("./utilities/index.js");
-const pool = require("./database");
-const invModel = require("./models/inventory-model");
-const serviceRoutes = require('./routes/service-routes'); //for Enhancement week 6
+// Project files
+const staticRoutes = require("./routes/static")
+const baseController = require("./controllers/baseController")
+const inventoryRoute = require("./routes/inventoryRoute")
+const accountRoute = require("./routes/accountRoute")
+const messageRoute = require("./routes/messageRoute")
+const intentionalErrorRoute = require("./routes/intentionalErrorRoute")
+const utilities = require("./utilities")
+const pool = require("./database")
+const invModel = require("./models/inventory-model")
 
-// Init
-const app = express();
+// FIXED: match filename exactly
+const serviceRoutes = require("./routes/serviceRoutes")
 
+// Initialize app
+const app = express()
 
-// Sessions/MIDDLEWARE
+// Session middleware
 app.use(
   session({
     store: new pgSession({
-      pool,
+      pool: pool,
       tableName: "session",
       createTableIfMissing: true,
     }),
@@ -39,98 +40,100 @@ app.use(
       maxAge: 1000 * 60 * 60 * 2, // 2 hours
     },
   })
-);
+)
 
-//session data available to views
+// Session data available in views
 app.use((req, res, next) => {
-  res.locals.loggedin = req.session.loggedin || false;
-  res.locals.accountData = req.session.accountData || {};
-  next();
-});
+  res.locals.loggedin = req.session.loggedin || false
+  res.locals.accountData = req.session.accountData || {}
+  next()
+})
 
-// Messages/middleware
-app.use(require("connect-flash")());
-app.use(function (req, res, next) {
-  res.locals.messages = require("express-messages")(req, res);
-  next();
-});
+// Flash messages
+app.use(require("connect-flash")())
+app.use((req, res, next) => {
+  res.locals.messages = require("express-messages")(req, res)
+  next()
+})
 
-// Body parsermiddleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Body parser
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({ extended: true }))
 
 // Cookie parser
-app.use(cookieParser());
+app.use(cookieParser())
 
-// JWT checking
-app.use(utilities.checkJWTToken);
+// JWT middleware
+app.use(utilities.checkJWTToken)
 
-/* view and templates layout */
-app.set("view engine", "ejs");
-app.use(expressLayouts);
+// View engine
+app.set("view engine", "ejs")
+app.use(expressLayouts)
+app.set("layout", "./layouts/layout")
 
-// layout file
-app.set("layout", "./layouts/layout");
+// Service route (Enhancement Week 6)
+app.use("/service", serviceRoutes)
 
-app.use('/service', serviceRoutes);//for Enhancement week 6
-// Routes 
-app.use(static);
+// Static routes
+app.use(staticRoutes)
 
+// Load classifications globally
 app.use(async (req, res, next) => {
   try {
-    const classificationsResult = await invModel.getClassifications();
-    res.locals.classifications = Array.isArray(classificationsResult.rows) ? classificationsResult.rows : [];
-    next();
+    const result = await invModel.getClassifications()
+    res.locals.classifications = Array.isArray(result.rows)
+      ? result.rows
+      : []
+    next()
   } catch (error) {
-    console.error("Error loading classifications:", error);
-    res.locals.classifications = [];
-    next();
+    console.error("Error loading classifications:", error)
+    res.locals.classifications = []
+    next()
   }
-});
+})
 
 // Home route
-app.get("/", utilities.handleErrors(baseController.buildHome));
+app.get("/", utilities.handleErrors(baseController.buildHome))
 
-// Inventory
-app.use("/inv", inventoryRoute);
+// Inventory routes
+app.use("/inv", inventoryRoute)
 
-// Account
-app.use("/account", accountRoute);
+// Account routes
+app.use("/account", accountRoute)
 
-// Message
-app.use("/message", messageRoute);
+// Message routes
+app.use("/message", messageRoute)
 
-// Intentional Error test
-app.use("/ierror", intentionalErrorRoute);
+// Intentional error test
+app.use("/ierror", intentionalErrorRoute)
 
 // 404 handler
-app.use(async (req, res, next) => {
+app.use((req, res, next) => {
   next({
     status: 404,
     message: "Unfortunately, we don't have that page in stock.",
-  });
-});
+  })
+})
 
-/* Error Handler */
-app.use(async (err, req, res, next) => {
-  console.error(`Error at: "${req.originalUrl}": ${err.message}`);
-  console.dir(err);
-  let message =
-    err.status == 404
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(`Error at "${req.originalUrl}": ${err.message}`)
+
+  const message =
+    err.status === 404
       ? err.message
-      : "Oh no! There was a crash. Maybe try a different route?";
+      : "Oh no! There was a crash. Maybe try a different route?"
+
   res.render("errors/error", {
     title: err.status || "Server Error",
-    message
-  });
-});
+    message,
+  })
+})
 
-
-/* Start server */
-const port = process.env.PORT || 5500;
-// const host = process.env.HOST || "0.0.0.0"; // for Render deployment
-const host = process.env.HOST || "localhost"; // local dev
+// Start server
+const port = process.env.PORT || 5500
+const host = process.env.HOST || "0.0.0.0"
 
 app.listen(port, host, () => {
-  console.log(`App listening on http://${host}:${port}`);
-});
+  console.log(`Server running on http://${host}:${port}`)
+})
