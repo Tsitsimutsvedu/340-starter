@@ -1,6 +1,6 @@
 -- Create ENUM type for account type
 CREATE TYPE public.account_type AS ENUM ('Client', 'Employee', 'Admin');
-ALTER TYPE public.account_type OWNER TO cse340_db_uomw_user;
+ALTER TYPE public.account_type OWNER TO cse340_db_m2qc_user;
 
 -- Table structure for table `account`
 CREATE TABLE IF NOT EXISTS public.account (
